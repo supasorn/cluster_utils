@@ -3,7 +3,9 @@
     def getLocalPath(local_storage, path, clone=True)
  
 Returns the path to the actual file depending on where the code is run.
+
   If run locally (not vision-0x), just return the path.
+
 
   If run on the cluster:
     Copy the file (or the entire folder) specified by "path" from your
