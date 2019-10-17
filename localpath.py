@@ -21,6 +21,22 @@ Returns the path to the actual file depending on where the code is run.
   and only creating the directory tree on the cluster. This is for creating
   an output file / folder.
 
+  Suppose the file on your workstation is:
+    /home/supasorn/research/project1/data/train.txt
+  The copied file on cluster will be:
+    LOCAL_STORAGE/home/supasorn/research/project1/data/train.txt
+  where LOCAL_STORAGE is the first argument provided to this function.
+
+
+  Usage:
+    Go to your research folder, run:
+      git clone https://github.com/supasorn/cluster_utils.git
+    This will create a folder cluster_utils/ inside your research folder.
+
+    Then in your code:
+
+      from cluster_utils.localpath import getLocalPath
+
 
   Examples:
     1. If you want to have large data file available to your cluster locally,
@@ -35,18 +51,15 @@ Returns the path to the actual file depending on where the code is run.
     This also works with absolute paths on your workstation.
 
 
-
     2. If you want to write an output file locally instead of sshfs-mounted
     directory on your workstation, set the clone flag to false:
 
       getLocalPath("/home2/YOURUSER/local_storage", "output/out.txt", clone=False)
 
 
-
     3. If you want to have the entire folder cloned from your workstation.
 
       getLocalPath("/home2/YOURUSER/local_storage", "model_dir/")
-
 
 
     4. If you want to use an output folder locally, e.g., when using tensorflow's
@@ -101,10 +114,8 @@ def getLocalPath(local_storage, path, clone=True):
   return destination
 
 def find_remote_mount_point(path):
-  print("PP", path)
   for l in open("/proc/mounts", "r"):
     mp = l.split(" ")
-    print(l)
     if mp[1] != "/" and path == mp[1]:
       return mp[0]
   return None
@@ -121,7 +132,6 @@ def get_remote_path(path):
   path = os.path.abspath(path)
   ld = find_local_mount_point(path)
   rd = find_remote_mount_point(ld)
-  print("AAAA", rd)
 
   if rd is None or "@" not in rd:
     print("non-mounted file")
