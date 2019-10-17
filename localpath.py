@@ -14,12 +14,13 @@ Returns the path to the actual file depending on where the code is run.
   If run on the cluster:
     Copy the file (or the entire folder) specified by "path" from your
     workstation to the cluster and return the local path to the copied
-    file on the cluster. Copying is performed when the file has never
-    been copied or when the copied file is outdated.
+    file on the cluster. Copying is performed when the file doesn't 
+    exist or when the copied file is too old.
 
   *** Setting the "clone" flag to False means skipping the copying,
   and only creating the directory tree on the cluster. This is for creating
   an output file / folder.
+
 
   Examples:
     1. If you want to have large data file available to your cluster locally,
@@ -52,6 +53,19 @@ Returns the path to the actual file depending on where the code is run.
     estimator which requires setting model_dir. Set clone to False and use:
 
       getLocalPath("/home2/YOURUSER/local_storage", "run/experiment1", clone=False)
+
+
+  Tips:
+    Usually the local_storage has to be set for every getLocalPath()'s calls, but
+    we can shorten the call with a python's lambda function.
+
+    lp = lambda path, clone=True: getLocalPath("/home2/YOURUSER/local_storage", path, clone)
+
+    And instead of using:
+      file_path = getLocalPath("/home2/YOURUSER/local_storage", "data/bigdata.tfrecord")
+    we can use:
+      file_path = lp("data/bigdata.tfrecord")
+
 
 '''
 def getLocalPath(local_storage, path, clone=True):
