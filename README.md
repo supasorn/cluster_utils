@@ -1,6 +1,6 @@
 # Utilities for running on vll cluster
 
- def getLocalPath(local_storage, path, clone=True)
+    def getLocalPath(local_storage, path, clone=True)
  
 Returns the path to the actual file depending on where the code is run.
   If run locally (not vision-0x), just return the path.
