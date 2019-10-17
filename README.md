@@ -15,9 +15,13 @@ Returns the path to the actual file depending on where the code is run.
   an output file / folder.
 
   Suppose the file on your workstation is:
+  
     /home/supasorn/research/project1/data/train.txt
+    
   The copied file on cluster will be:
+  
     LOCAL_STORAGE/home/supasorn/research/project1/data/train.txt
+    
   where LOCAL_STORAGE is the first argument provided to this function.
 
 
