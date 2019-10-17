@@ -27,13 +27,12 @@ Returns the path to the actual file depending on where the code is run.
 
 
   ## Usage:
-    Go to your research folder, run:
-      git clone https://github.com/supasorn/cluster_utils.git
-    This will create a folder cluster_utils/ inside your research folder.
+Go to your research folder, run:
+    git clone https://github.com/supasorn/cluster_utils.git
+This will create a folder cluster_utils/ inside your research folder.
 
-    Then in your code:
-
-      from cluster_utils.localpath import getLocalPath
+Then in your code:
+    from cluster_utils.localpath import getLocalPath
 
 
   ## Examples:
