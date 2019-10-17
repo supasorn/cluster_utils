@@ -104,13 +104,15 @@ def getLocalPath(local_storage, path, clone=True):
 
   if os.path.isdir(path) and clone is False:
     cmd("  mkdir -p " + destination)
-    print("     >> Not cloned\n")
   else:
     cmd("  mkdir -p " + os.path.dirname(destination))
-    if clone:
-      cmd("  rsync -ru " + src + " " + os.path.dirname(destination))
-      print("     >> Cloned\n")
-  # exit()
+
+  if clone:
+    cmd("  rsync -ru " + src + " " + os.path.dirname(destination))
+    print("     >> Cloned\n")
+  else:
+    print("     >> Not cloned\n")
+
   return destination
 
 def find_remote_mount_point(path):
