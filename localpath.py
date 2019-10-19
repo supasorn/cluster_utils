@@ -34,38 +34,7 @@ Returns the path to the actual file depending on where the code is run.
     This will create a folder cluster_utils/ inside your research folder.
 
     Then in your code:
-
       from cluster_utils.localpath import getLocalPath
-
-
-  Examples:
-    1. If you want to have large data file available to your cluster locally,
-    do the following. Suppose the data is "data/bigdata.tfrecord"
-    (relative path)
-
-    Instead of using:
-      file_path = "data/bigdata.tfrecord"
-    Use:
-      file_path = getLocalPath("/home2/YOURUSER/local_storage", "data/bigdata.tfrecord")
-
-    This also works with absolute paths on your workstation.
-
-
-    2. If you want to write an output file locally instead of sshfs-mounted
-    directory on your workstation, set the clone flag to false:
-
-      getLocalPath("/home2/YOURUSER/local_storage", "output/out.txt", clone=False)
-
-
-    3. If you want to have the entire folder cloned from your workstation.
-
-      getLocalPath("/home2/YOURUSER/local_storage", "model_dir/")
-
-
-    4. If you want to use an output folder locally, e.g., when using tensorflow's
-    estimator which requires setting model_dir. Set clone to False and use:
-
-      getLocalPath("/home2/YOURUSER/local_storage", "run/experiment1", clone=False)
 
 
   Tips:
@@ -78,7 +47,36 @@ Returns the path to the actual file depending on where the code is run.
       file_path = getLocalPath("/home2/YOURUSER/local_storage", "data/bigdata.tfrecord")
     we can use:
       file_path = lp("data/bigdata.tfrecord")
+      
+      
+  Examples:
+    1. If you want to have large data file available to your cluster locally,
+    do the following. Suppose the data is "data/bigdata.tfrecord"
+    (relative path)
 
+    Instead of using:
+      file_path = "data/bigdata.tfrecord"
+    Use:
+      file_path = lp("data/bigdata.tfrecord")
+
+    This also works with absolute paths on your workstation.
+
+
+    2. If you want to write an output file locally instead of sshfs-mounted
+    directory on your workstation, set the clone flag to false:
+
+      lp("output/out.txt", clone=False)
+
+
+    3. If you want to have the entire folder cloned from your workstation.
+
+      lp("model_dir/")
+
+
+    4. If you want to use an output folder locally, e.g., when using tensorflow's
+    estimator which requires setting model_dir. Set clone to False and use:
+
+      lp("run/experiment1", clone=False)
 
 '''
 def getLocalPath(local_storage, path, clone=True):
