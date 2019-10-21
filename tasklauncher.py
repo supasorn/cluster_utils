@@ -8,6 +8,10 @@ import sys
 
 session_special = "TL"
 clusters = ["v2", "v3", "v4"]
+src = "supasorn@10.204.162.213:/home2/research/orbiter"
+target = "/home/supasorn/mnt/orbiter"
+venv = "source /home/vll/venv_tf1.14/bin/activate"
+
 
 def cmd(a):
   print("  " + a)
@@ -36,15 +40,6 @@ def showWindows():
   for i, x in enumerate(a):
     print("Cluster " + clusters[i] + "\n  " + str(x) + "\n")
 
-
-src = "supasorn@10.204.162.213:/home2/research/orbiter"
-target = "/home/supasorn/mnt/orbiter"
-
-cwd = "source /home/vll/venv_tf1.14/bin/activate"
-
-
-# print(GPUtil.getAvailable(limit=4))
-# exit()
 
 def main():
   if sys.argv[1] == "ls":
@@ -92,11 +87,9 @@ def main():
     sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o cache=no -o IdentityFile=/home/supasorn/.ssh/id_rsa " + src + " " + target + "\""
     cmd(sshfs_cmd)
 
-
-    tf_cmd = "echo 'done'"
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
 
-    terminal_cmd = "source /home/vll/venv_tf1.14/bin/activate; cd " + target + "; " + tf_cmd
+    terminal_cmd = venv + "; cd " + target + "; " + tf_cmd
 
     windows = getWindowList(cluster)
     if windows is None:
