@@ -21,15 +21,20 @@ def getWindowList(cluster):
   k = [x[:-1] if x[-1] == '-' or x[-1] == '*' else x for x in k]
   return k
 
-def printGPU(x):
-  return "Cluster " + clusters[x] + "\n" + GPUtil.showUtilization(ssh=clusters[x])
+def printGPU(cluster):
+  return "Cluster " + cluster + "\n" + GPUtil.showUtilization(ssh=cluster)
 
 def showGPUs():
-  output = [""] * len(clusters)
   p = Pool(len(clusters))
-  a = p.map(printGPU, range(len(clusters)))
+  a = p.map(printGPU, clusters)
   for x in a:
-    print x
+    print(x)
+
+def showWindows():
+  p = Pool(len(clusters))
+  a = p.map(getWindowList, clusters)
+  for i, x in enumerate(a):
+    print("Cluster " + clusters[i] + "\n  " + str(x) + "\n")
 
 
 src = "supasorn@10.204.162.213:/home2/research/orbiter"
@@ -43,9 +48,20 @@ cwd = "source /home/vll/venv_tf1.14/bin/activate"
 
 def main():
   if sys.argv[1] == "ls":
+    showWindows()
+  elif sys.argv[1] == "lsgpu":
     showGPUs()
+  elif sys.argv[1] == "tm":
+    os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   else:
-    code = sys.argv[1]
+    if "@" not in sys.argv[1]:
+      print("Wrong format. Needed: SESSION_NAME@ClUSTER[gNUM]")
+      exit()
+
+    sp = sys.argv[1].split("@")
+    session_name = sp[0]
+
+    code = sp[1]
     cluster = ""
     for c in clusters:
       if code[:len(c)] == c:
@@ -58,17 +74,18 @@ def main():
       exit()
     if code != "" and (code[0] != 'g' or code[1] not in ["0", "1", "2", "3", "a"]):
       print("Invalid GPU code")
+      exit()
 
     # auto
     if code == "" or code[1] == "a":
       gpu_id = str(GPUtil.getFirstAvailable(cluster)[0])
     else:
-      gpu_id = code[11]
+      gpu_id = code[1]
 
     print(gpu_id)
 
-    session_name = sys.argv[2]
     print("Using cluster: " + cluster)
+    print("Using gpu: " + gpu_id)
     print("Session name: " + session_name)
 
     print("SSHFS Mapping ...")
@@ -77,7 +94,7 @@ def main():
 
 
     tf_cmd = "echo 'done'"
-    tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[3:])
+    tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
 
     terminal_cmd = "source /home/vll/venv_tf1.14/bin/activate; cd " + target + "; " + tf_cmd
 
