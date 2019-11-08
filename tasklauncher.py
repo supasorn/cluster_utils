@@ -1,3 +1,4 @@
+# alias tl="python .../cluster_utils/tasklauncher.py"
 import os
 import GPUtil
 from subprocess import Popen, PIPE
