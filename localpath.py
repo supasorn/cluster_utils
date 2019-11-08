@@ -92,13 +92,14 @@ def getLocalPath(local_storage, path, clone=True):
     print("NOT on cluster: " + path)
     return path
 
-  src = get_remote_path(path)
-  destination = local_storage + os.path.abspath(path)
+  src_with_host = get_remote_path(path)
+  src = src_with_host.split(":")[1]
 
+  destination = local_storage + src
 
   print("-" * 60)
   print("  On cluster: " + destination)
-  print("  Remote    : " + src)
+  print("  Remote    : " + src_with_host)
 
   if os.path.isdir(path) and clone is False:
     cmd("  mkdir -p " + destination)
@@ -106,7 +107,7 @@ def getLocalPath(local_storage, path, clone=True):
     cmd("  mkdir -p " + os.path.dirname(destination))
 
   if clone:
-    cmd("  rsync -ru " + src + " " + os.path.dirname(destination))
+    cmd("  rsync -ru " + src_with_host + " " + os.path.dirname(destination))
     print("     >> Cloned\n")
   else:
     print("     >> Not cloned\n")

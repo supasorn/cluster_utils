@@ -1,15 +1,33 @@
-# alias tl="python .../cluster_utils/tasklauncher.py"
+'''
+alias tl="python .../cluster_utils/tasklauncher.py"
+
+List gpu usage:
+  tl lsgpu
+
+List running tasks
+  tl ls
+
+Launch a job on some free gpu in a some free cluster:
+  tl @ [cmd]
+
+Launch a job on a particular cluster (e.g., on v3):
+  tl @v3 [cmd]
+
+Launch a job on a particular cluster on a particular gpu:
+  tl @v3g0 [cmd]
+
+Launch a job with a specific session name:
+  tl name@v3g0 [cmd]
+'''
+
 import os
 import GPUtil
 from subprocess import Popen, PIPE
 from multiprocessing import Pool
 from functools import partial
 import sys
-
-src = os.environ["tl_src"]
-target = os.environ["tl_target"]
-venv = os.environ["tl_venv"]
-
+import socket
+import getpass
 
 session_special = "TL"
 
@@ -18,11 +36,27 @@ if "tl_clusters" not in os.environ:
 else:
   clusters = os.environ["tl_clusters"].split(",")
 
+if "tl_venv" not in os.environ:
+  venv = "source /home/vll/venv_tf1.14/bin/activate"
+else:
+  venv = os.environ["tl_venv"]
 
 def cmd(a):
   print("  " + a)
   os.system(a)
 
+def get_ip():
+  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+  try:
+    # doesn't even have to be reachable
+    s.connect(('10.255.255.255', 1))
+    IP = s.getsockname()[0]
+  except:
+    print("Can't automatically determine IP")
+    exit()
+  finally:
+    s.close()
+  return IP
 
 def showGPUs_fn(cluster):
   return "Cluster " + cluster + "\n" + GPUtil.showUtilization(ssh=cluster)
@@ -114,11 +148,13 @@ def main():
 
 
     print("SSHFS Mapping ...")
-    sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o cache=no -o IdentityFile=/home/supasorn/.ssh/id_rsa " + src + " " + target + "\""
+    user_host = getpass.getuser() + "@" + get_ip()
+    target = "~/mnt_tl/"
+    sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o cache=no -o IdentityFile=/home/supasorn/.ssh/id_rsa " + user_host + ":/ " + target + "\""
     cmd(sshfs_cmd)
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
-    terminal_cmd = venv + "; cd " + target + "; " + tf_cmd + "; exit"
+    terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd
 
     if len(windows) == 0:
       tmux_creation = 'tmux new -A -s ' + session_special + ' -n ' + session_name + '\;'
