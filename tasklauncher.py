@@ -34,6 +34,8 @@ def showGPUs():
 
 def getWindowList(cluster):
   stdout, stderr = Popen(['ssh', cluster, 'tmux list-windows -t ' + session_special], stdout=PIPE).communicate()
+  stdout = str(stdout)
+  print(stdout)
   if "[" not in stdout:
     return []
   k = [x.split(" ")[1] for x in stdout.rstrip().split("\n")]
