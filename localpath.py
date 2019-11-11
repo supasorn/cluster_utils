@@ -79,7 +79,17 @@ Returns the path to the actual file depending on where the code is run.
       lp("run/experiment1", clone=False)
 
 '''
+
+def minput(path):
+  return getLocalPath(path, clone=True)
+
+def moutput(path):
+  return getLocalPath(path, clone=False)
+
 def getLocalPath(local_storage, path, clone=True):
+  if local_storage == "":
+    local_storage = "/home2/" + getpass.getuser() + "/local_storage"
+
   if not os.path.exists(local_storage):
     os.makedirs(local_storage)
 
