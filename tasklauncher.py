@@ -140,9 +140,9 @@ def main():
     print("Establishing session name...")
     windows = getWindowList(cluster)
     if sp[0] == "":
-      sp[0] = "sess00"
+      sp[0] = "s00"
       while len(windows) and sp[0] in windows:
-        sp[0] = "sess%02d" % (int(sp[0][4:])+1)
+        sp[0] = "s%02d" % (int(sp[0][1:])+1)
     session_name = sp[0]
     print("Session name: " + session_name)
 
@@ -154,7 +154,7 @@ def main():
     cmd(sshfs_cmd)
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
-    terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd
+    terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd + "; tmux detach"
 
     if len(windows) == 0:
       tmux_creation = 'tmux new -A -s ' + session_special + ' -n ' + session_name + '\;'
