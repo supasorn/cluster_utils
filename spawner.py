@@ -125,6 +125,7 @@ def main():
       freeGpus.append((bestcpu[0], bestcpu[1][:-1]))
     needRemove -= 1
 
+  numUsedGpus = sum(len(cpu[1]) for cpu in freeGpus)
   print(freeGpus)
   spawnAll(sess, freeGpus)
 
@@ -149,6 +150,8 @@ def main():
     reqs = glob.glob(sess + "/*.req")
     print(reqs)
     print(glob.glob(sess + "/*.req.res"))
+    if len(glob.glob(sess + "/*.done")) == numUsedGpus:
+      break
 
     rewrite = 0
     for req in reqs:
@@ -182,7 +185,7 @@ def main():
     print([x[1] for x in stats])
     print("%d/%d" % (done, len(stats)))
 
-    sleep(0.1)
+    sleep(3)
 if __name__== "__main__":
   main()
 

@@ -18,7 +18,7 @@ def main():
   if len(sys.argv) > 1:
     clusters = sys.argv[1]
   else:
-    clusters = "v2,v3,v4"
+    clusters = "v1,v2,v3,v4"
 
   clusters = clusters.split(",")
 

@@ -37,15 +37,18 @@ def main():
       fi.close()
       print("remove " + reqf)
       os.remove(reqf)
-      print("remove " + reqf + ".res")
-      os.remove(reqf + ".res")
 
       if len(data):
         if data[0] == "DONE":
+          os.remove(reqf + ".res")
+          open(reqf[:-3] + "done", "w").close()
           exit()
         for line in data:
           print(line)
           os.system(line)
+
+      print("remove " + reqf + ".res")
+      os.remove(reqf + ".res")
     sleep(1)
     print(id + "@" + sess, time.strftime("%H:%M:%S", time.gmtime(time.time() - start)))
 
