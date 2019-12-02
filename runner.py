@@ -16,31 +16,35 @@ local_storage = '/home2/supasorn/local_storage'
 clusters = ""
 
 def main():
-  if len(sys.argv) != 3:
-    print("runner.py id session_folder")
+  if len(sys.argv) != 4:
+    print("runner.py id session_folder path")
 
   id = sys.argv[1]
-  sess = "session_" + sys.argv[2]
+  sess = sys.argv[2]
+  path = sys.argv[3]
 
-  if not os.path.exists(sess):
-    os.mkdir(sess)
+  # if not os.path.exists(sess):
+    # os.mkdir(sess)
 
   start = time.time()
   while True:
-    reqf = sess + "/" + id + ".req"
+    reqf = path + sess + "/" + id + ".req"
     if not os.path.exists(reqf):
       open(reqf, "w").close()
     elif os.path.exists(reqf + ".res"):
       fi = open(reqf + ".res", "r")
       data = fi.readlines()
       fi.close()
+      print("remove " + reqf)
       os.remove(reqf)
+      print("remove " + reqf + ".res")
       os.remove(reqf + ".res")
 
       if len(data):
         if data[0] == "DONE":
           exit()
         for line in data:
+          print(line)
           os.system(line)
     sleep(1)
     print(id + "@" + sess, time.strftime("%H:%M:%S", time.gmtime(time.time() - start)))

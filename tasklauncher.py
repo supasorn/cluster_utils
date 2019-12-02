@@ -32,7 +32,7 @@ import getpass
 session_special = "TL"
 
 if "tl_clusters" not in os.environ:
-  clusters = ["v2", "v3", "v4"]
+  clusters = ["v1", "v2", "v3", "v4"]
 else:
   clusters = os.environ["tl_clusters"].split(",")
 
@@ -149,7 +149,8 @@ def main():
 
     print("SSHFS Mapping ...")
     user_host = getpass.getuser() + "@" + get_ip()
-    target = "~/mnt_tl/"
+    # target = "~/mnt_tl/"
+    target = "~/mnt_tl_rog/"
     sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa " + user_host + ":/ " + target + "\""
     cmd(sshfs_cmd)
 
