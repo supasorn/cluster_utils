@@ -28,6 +28,7 @@ from functools import partial
 import sys
 import socket
 import getpass
+import platform
 
 session_special = "TL"
 
@@ -149,13 +150,13 @@ def main():
 
     print("SSHFS Mapping ...")
     user_host = getpass.getuser() + "@" + get_ip()
-    # target = "~/mnt_tl/"
-    target = "~/mnt_tl_rog/"
+    target = "~/mnt_tl_" + platform.node() + "/"
     sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa " + user_host + ":/ " + target + "\""
     cmd(sshfs_cmd)
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
-    terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd + "; tmux detach"
+    # terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd + "; tmux detach"
+    terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd
 
     if len(windows) == 0:
       tmux_creation = 'tmux new -A -s ' + session_special + ' -n ' + session_name + '\;'
