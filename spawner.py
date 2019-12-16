@@ -10,6 +10,7 @@ from time import sleep
 import subprocess
 import time
 import glob
+import platform
 
 
 tasks = None
@@ -67,7 +68,8 @@ def spawnAll(session_special, freeGpus):
     cluster = cpu[0]
 
     user_host = getpass.getuser() + "@" + get_ip()
-    target = "~/mnt_spawner_rog/"
+    target = "~/mnt_tl_" + platform.node() + "/"
+    target = "~/mnt_sp_" + platform.node() + "/"
     sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa " + user_host + ":/ " + target + "\""
     cmd(sshfs_cmd)
 
@@ -81,7 +83,7 @@ def spawnAll(session_special, freeGpus):
 
       thisdir = os.path.dirname(os.path.abspath(__file__))
 
-      tmux_cmd += 'send-keys \\\"export CUDA_VISIBLE_DEVICES=%s; %s; python %s%s/runner.py %sg%d %s %s%s/\\\" C-m \; ' % (str(gpu), venv.replace(" ", " Space "), target, thisdir, cluster, gpu, session_special, target, os.getcwd())
+      tmux_cmd += 'send-keys \\\"export CUDA_VISIBLE_DEVICES=%s; cd %s; %s; python %s%s/runner.py %sg%d %s %s/\\\" C-m \; ' % (str(gpu), target + os.getcwd(), venv, target, thisdir, cluster, gpu, session_special, target + os.getcwd())
 
     tmux_cmd += 'new-window -t ' + session_special + ' -n head \; '
 
@@ -148,6 +150,7 @@ def main():
     print(reqs)
     print(glob.glob(sess + "/*.req.res"))
     if len(glob.glob(sess + "/*.done")) == numUsedGpus:
+      os.system("rm " + sess + "/*.done")
       break
 
     rewrite = 0
