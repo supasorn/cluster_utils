@@ -20,6 +20,11 @@ if "tl_clusters" not in os.environ:
 else:
   clusters = os.environ["tl_clusters"].split(",")
 
+if "tl_venv" not in os.environ:
+  venv = "source /home/vll/venv_tf1.14/bin/activate"
+else:
+  venv = os.environ["tl_venv"]
+
 def getAvailableGPUs_fn(cluster):
   return (cluster, GPUtil.getAvailable(cluster, limit=4))
 
@@ -29,17 +34,6 @@ def getAvailableGPUs():
   gpu_list = p.map(getAvailableGPUs_fn, clusters)
   gpu_list.sort(key=lambda x:len(x[1]), reverse=True)
   return gpu_list # cluster, gpu_id
-
-def func(v):
-  print(v)
-  # os.system('gnome-terminal -- python tasklauncher.py @ sleep 5')
-  # subprocess.check_output(['gnome-terminal', '-e', 'python tasklauncher.py @ sleep 5'], shell=True)
-  p = Popen(['ssh', 'v2', 'sleep 10'])
-  while p.poll() is None:
-    print("sleep")
-    sleep(1)
-  print(p.poll())
-  print("done")
 
 def cmd(a):
   print("  " + a)
@@ -85,11 +79,14 @@ def spawnAll(session_special, freeGpus):
         tmux_cmd += 'new-window -t '
       tmux_cmd += session_special + ' -n ' + ("%sg%d" % (cluster, gpu)) + ' \; '
 
-      tmux_cmd += 'send-keys "export Space CUDA_VISIBLE_DEVICES=' + str(gpu) + '" C-m \; send-keys "source Space /home/vll/venv_tf1.14/bin/activate" C-m \; send-keys "python Space ~/mnt_spawner_rog/home2/research/orbiter/cluster_utils/runner.py Space '+ ("%sg%d" % (cluster, gpu)) + ' Space ' + session_special + ' Space ~/mnt_spawner_rog/home2/research/orbiter/" C-m \; '
+      thisdir = os.path.dirname(os.path.abspath(__file__))
+
+      tmux_cmd += 'send-keys \\\"export CUDA_VISIBLE_DEVICES=%s; %s; python %s%s/runner.py %sg%d %s %s%s/\\\" C-m \; ' % (str(gpu), venv.replace(" ", " Space "), target, thisdir, cluster, gpu, session_special, target, os.getcwd())
 
     tmux_cmd += 'new-window -t ' + session_special + ' -n head \; '
 
     tmux_cmd = 'ssh ' + cluster + ' -t "' + tmux_cmd + ' send-keys \\\"tmux detach\\\" C-m\;"'
+
     cmd(tmux_cmd)
     # break
 

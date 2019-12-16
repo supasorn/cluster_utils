@@ -12,7 +12,6 @@ import getpass
 from time import sleep
 import time
 
-local_storage = '/home2/supasorn/local_storage'
 clusters = ""
 
 def main():
