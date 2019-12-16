@@ -68,7 +68,6 @@ def spawnAll(session_special, freeGpus):
     cluster = cpu[0]
 
     user_host = getpass.getuser() + "@" + get_ip()
-    target = "~/mnt_tl_" + platform.node() + "/"
     target = "~/mnt_sp_" + platform.node() + "/"
     sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa " + user_host + ":/ " + target + "\""
     cmd(sshfs_cmd)

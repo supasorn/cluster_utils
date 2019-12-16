@@ -6,6 +6,7 @@ import os
 import re
 import time
 import socket
+import getpass
 
 '''
 Returns the path to the actual file depending on where the code is run.
@@ -103,6 +104,9 @@ def getLocalPath(local_storage, path, clone=True):
     return path
 
   src_with_host = get_remote_path(path)
+  if src_with_host is None:
+    print("Seems like Teng!")
+    return path
   src = src_with_host.split(":")[1]
 
   destination = local_storage + src
@@ -151,6 +155,8 @@ def get_remote_path(path):
     if path[0] == '/':
       ld2 = find_local_mount_point(os.getcwd())
       rd2 = find_remote_mount_point(ld2)
+      if rd2 is None:
+        return None
       return rd2.split(":")[0] + ":" + path
     else:
       print("Error: non-mounted file requires an absolute path")
