@@ -98,7 +98,7 @@ def getLocalPath(local_storage, path, clone=True):
   while len(path) > 1 and path[-1] == "/":
     path = path[:-1]
 
-  cluster = re.search(r"vision-\d{2}", socket.gethostname())
+  cluster = re.search(r"v.*\d{2}", socket.gethostname())
   if cluster is None:
     print("NOT on cluster: " + path)
     return path

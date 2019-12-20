@@ -71,11 +71,10 @@ def showGPUs():
 def getWindowList(cluster):
   stdout, stderr = Popen(['ssh', cluster, 'tmux list-windows -t ' + session_special], stdout=PIPE).communicate()
   stdout = str(stdout)
-  # print(stdout)
   if "[" not in stdout:
     return []
-  k = [x.split(" ")[1] for x in stdout.rstrip().split("\\n") if " " in x]
-  k = [x[:-1] if x[-1] == '-' or x[-1] == '*' else x for x in k]
+  k = [x.split(" ")[1] for x in stdout.rstrip().split("\n") if " " in x]
+  k = [x[:-1] if (x[-1] == '-' or x[-1] == '*') else x for x in k]
   return k
 
 def showWindows():
