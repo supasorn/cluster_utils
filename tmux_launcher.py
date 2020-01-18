@@ -24,7 +24,7 @@ def tmux_commands(cms):
   os.system(st)
 
 def main():
-  cmds = ["export CUDA_VISIBLE_DEVICES=%d; source /home/vll/venv_tf1.14/bin/activate; python /home/supasorn/research/orbiter/cluster_utils/runner.py v1g%d sess" % (i, i) for i in range(3)]
+  cmds = ["export CUDA_VISIBLE_DEVICES=%d; source /home/vll/venv_tf1.15/bin/activate; python /home/supasorn/research/orbiter/cluster_utils/runner.py v1g%d sess" % (i, i) for i in range(3)]
   tmux_commands(cmds)
 
 

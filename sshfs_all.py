@@ -1,4 +1,5 @@
 '''
+sshfs all folders that mirror current os.getcwd()
 '''
 
 import os

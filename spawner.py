@@ -22,7 +22,7 @@ else:
   clusters = os.environ["tl_clusters"].split(",")
 
 if "tl_venv" not in os.environ:
-  venv = "source /home/vll/venv_tf1.14/bin/activate"
+  venv = "source /home/vll/venv_tf1.15/bin/activate"
 else:
   venv = os.environ["tl_venv"]
 

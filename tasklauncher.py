@@ -1,23 +1,23 @@
 '''
-alias tl="python .../cluster_utils/tasklauncher.py"
+alias run="python .../cluster_utils/tasklauncher.py"
 
 List gpu usage:
-  tl lsgpu
+  run lsgpu
 
 List running tasks
-  tl ls
+  run ls
 
 Launch a job on some free gpu in a some free cluster:
-  tl @ [cmd]
+  run @ [cmd]
 
 Launch a job on a particular cluster (e.g., on v3):
-  tl @v3 [cmd]
+  run @v3 [cmd]
 
 Launch a job on a particular cluster on a particular gpu:
-  tl @v3g0 [cmd]
+  run @v3g0 [cmd]
 
 Launch a job with a specific session name:
-  tl name@v3g0 [cmd]
+  run name@v3g0 [cmd]
 '''
 
 import os
@@ -38,7 +38,7 @@ else:
   clusters = os.environ["tl_clusters"].split(",")
 
 if "tl_venv" not in os.environ:
-  venv = "source /home/vll/venv_tf1.14/bin/activate"
+  venv = "source /home/vll/venv_tf1.15/bin/activate"
 else:
   venv = os.environ["tl_venv"]
 
@@ -73,7 +73,10 @@ def getWindowList(cluster):
   stdout = str(stdout)
   if "[" not in stdout:
     return []
-  k = [x.split(" ")[1] for x in stdout.rstrip().split("\n") if " " in x]
+
+  st = stdout.rstrip()
+  sp = "\n" if "\n" in st else "\\n"
+  k = [x.split(" ")[1] for x in st.split(sp) if " " in x]
   k = [x[:-1] if (x[-1] == '-' or x[-1] == '*') else x for x in k]
   return k
 
