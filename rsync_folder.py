@@ -12,7 +12,8 @@ import getpass
 
 def getFileList(cluster):
   # stdout, stderr = Popen(['ssh', cluster, 'ls', '/home2/supasorn/local_storage/' + os.getcwd()], stdout=PIPE).communicate()
-  cmd("  rsync -rvu --exclude='event*' --exclude='graph*' " + cluster + ':/home2/supasorn/local_storage' + os.getcwd() + "/ .")
+  cmd("  rsync -rvu --exclude='graph*' " + cluster + ':/home2/supasorn/local_storage' + os.getcwd() + "/ .")
+  # cmd("  rsync -rvu --exclude='event*' --exclude='graph*' " + cluster + ':/home2/supasorn/local_storage' + os.getcwd() + "/ .")
 
 def main():
   if len(sys.argv) > 1:

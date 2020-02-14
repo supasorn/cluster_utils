@@ -175,12 +175,12 @@ def getAvailable(ssh="", order = 'first', limit=1, maxLoad=0.5, maxMemory=0.5, m
 #        if (GPUs[i].load < maxLoad or (includeNan and np.isnan(GPUs[i].load))) and (GPUs[i].memoryUtil < maxMemory  or (includeNan and np.isnan(GPUs[i].memoryUtil))):
 #            GPUavailability[i] = 1
 
-def getAvailability(GPUs, maxLoad=0.5, maxMemory=0.5, memoryFree=0, includeNan=False, excludeID=[], excludeUUID=[]):
+def getAvailability(GPUs, maxLoad=0.5, maxMemory=0.1, memoryFree=0, includeNan=False, excludeID=[], excludeUUID=[]):
     # Determine, which GPUs are available
     GPUavailability = [1 if (gpu.memoryFree>=memoryFree) and (gpu.load < maxLoad or (includeNan and math.isnan(gpu.load))) and (gpu.memoryUtil < maxMemory  or (includeNan and math.isnan(gpu.memoryUtil))) and ((gpu.id not in excludeID) and (gpu.uuid not in excludeUUID)) else 0 for gpu in GPUs]
     return GPUavailability
 
-def getFirstAvailable(ssh = "", order = 'first', maxLoad=0.5, maxMemory=0.5, attempts=1, interval=900, verbose=False, includeNan=False, excludeID=[], excludeUUID=[]):
+def getFirstAvailable(ssh = "", order = 'first', maxLoad=0.5, maxMemory=0.1, attempts=1, interval=900, verbose=False, includeNan=False, excludeID=[], excludeUUID=[]):
     #GPUs = getGPUs()
     #firstAvailableGPU = np.NaN
     #for i in range(len(GPUs)):
