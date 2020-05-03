@@ -31,7 +31,9 @@ def tensorboard():
   abspath = os.path.join(os.getcwd(), args.path)
   # print(sys.argv[1])
   # print()
-  os.system("tensorboard --logdir=%s,%s" % (abspath, ",".join(["~/mnt/%s" % c + local_storage + abspath for c in args.clusters.split(",")])))
+  cmd = "tensorboard --logdir=%s,%s" % (abspath, ",".join(["~/mnt/%s" % c + local_storage + abspath for c in args.clusters.split(",")]))
+  print(cmd)
+  os.system(cmd)
 
 
 if __name__== "__main__":

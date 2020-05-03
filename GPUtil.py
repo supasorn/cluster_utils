@@ -129,7 +129,7 @@ def getGPUs(ssh=""):
     return GPUs  # (deviceIds, gpuUtil, memUtil)
 
 
-def getAvailable(ssh="", order = 'first', limit=1, maxLoad=0.5, maxMemory=0.5, memoryFree=0, includeNan=False, excludeID=[], excludeUUID=[]):
+def getAvailable(ssh="", order = 'first', limit=1, maxLoad=0.5, maxMemory=0.1, memoryFree=0, includeNan=False, excludeID=[], excludeUUID=[]):
     # order = first | last | random | load | memory
     #    first --> select the GPU with the lowest ID (DEFAULT)
     #    last --> select the GPU with the highest ID
