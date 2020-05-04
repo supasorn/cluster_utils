@@ -173,8 +173,9 @@ def main():
     else:
       tmux_creation = 'tmux new -A -s ' + session_special + '\; new-window -t ' + session_special + ' -n ' + session_name + ' \;'
 
-    # tmux_cmd = 'ssh ' + cluster + ' -t "' + tmux_creation + ' send-keys \\\" ' + terminal_cmd + '\\\" C-m\;"'
-    terminal_cmd = 'ssh ' + cluster + ' -t \\\"' + terminal_cmd + '; /bin/zsh\\\"; exit' # last exit is for when closing ssh connection, also close ROG
+
+    # https://unix.stackexchange.com/questions/266866/how-to-prevent-ctrlc-to-break-ssh-connection/841125
+    terminal_cmd = 'ssh ' + cluster + ' -t \\\"trap : INT; ' + terminal_cmd + ' ; echo \\\"' + tf_cmd + '\\\" >> ~/.zsh_history; /bin/zsh \\\"; exit' # last exit is for when closing ssh connection, also close ROG
     tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\;'
 
     cmd(tmux_cmd)
