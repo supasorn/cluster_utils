@@ -175,11 +175,11 @@ def main():
 
 
     # https://unix.stackexchange.com/questions/266866/how-to-prevent-ctrlc-to-break-ssh-connection/841125
-    terminal_cmd = 'ssh ' + cluster + ' -t \\\"trap : INT; ' + terminal_cmd + ' ; echo \\\"' + tf_cmd + '\\\" >> ~/.zsh_history; /bin/zsh \\\"; exit' # last exit is for when closing ssh connection, also close ROG
-    tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\;'
+    terminal_cmd = ' ssh ' + cluster + ' -t \\\"trap : INT; ' + terminal_cmd + ' ; echo \\\"' + tf_cmd + '\\\" >> ~/.zsh_history; /bin/zsh \\\"; exit' # last exit is for when closing ssh connection, also close ROG
+    tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\; splitw -l 4 \; send-keys "' + tf_cmd + '" \; select-pane -P \'bg=colour234 fg=colour72\' \; select-pane -t 1 \;'
 
     cmd(tmux_cmd)
-    print(tmux_cmd)
+    # print(tmux_cmd)
 
 if __name__== "__main__":
   main()
