@@ -1,5 +1,5 @@
 '''
-alias run="python .../cluster_utils/tasklauncher.py"
+alias run="python .../cluster_utils/tasklauncher_uni.py"
 
 List gpu usage:
   run lsgpu
