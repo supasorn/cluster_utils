@@ -29,6 +29,7 @@ import sys
 import socket
 import getpass
 import platform
+import random
 
 session_special = "UL"
 
@@ -94,7 +95,16 @@ def getAvailableGPUs_fn(cluster):
 def getAvailableGPUs():
   p = Pool(len(clusters))
   gpu_list = p.map(getAvailableGPUs_fn, clusters)
+
+  power_saving = ["v4", "v8"]
+  for gpu in gpu_list:
+    random.shuffle(gpu[1])
+    if gpu[0] in power_saving:
+      gpu[1].pop()
+
   gpu_list.sort(key=lambda x:len(x[1]), reverse=True)
+  # print(gpu_list)
+
   return (gpu_list[0][0], gpu_list[0][1][0]) # cluster, gpu_id
 
 def main():
@@ -115,6 +125,7 @@ def main():
     if code == "": #automatically select cluster and gpu
       print("Finding a free cluster and a free gpu...")
       cluster, gpu_id = getAvailableGPUs()
+      exit()
       gpu_id=str(gpu_id)
     else:
       cluster = ""
