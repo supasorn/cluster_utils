@@ -33,7 +33,7 @@ import platform
 session_special = "UL"
 
 if "tl_clusters" not in os.environ:
-  clusters = ["v1", "v2", "v3", "v4"]
+  clusters = ["v1", "v2", "v3", "v4", "v8", "v7"]
 else:
   clusters = os.environ["tl_clusters"].split(",")
 
