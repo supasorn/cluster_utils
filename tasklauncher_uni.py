@@ -140,7 +140,6 @@ def main():
 
     print("Using cluster: " + cluster)
     print("Using gpu: " + gpu_id)
-    exit()
 
     print("Establishing session name...")
     windows = getWindowList()
