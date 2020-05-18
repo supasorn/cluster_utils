@@ -12,5 +12,6 @@ nodes = ["10.204.100.111",
   "10.204.100.124"]
 for node in nodes:
   cmd = "sshpass -f password.txt ssh-copy-id " + node
+  print(cmd)
   os.system(cmd)
 
