@@ -33,7 +33,7 @@ import platform
 session_special = "UL"
 
 if "tl_clusters" not in os.environ:
-  clusters = ["v1", "v2", "v3", "v4", "v8", "v7"]
+  clusters = ["v1", "v2", "v3", "v4", "v7", "v8", "v9", "v10", "v23", "v24"]
 else:
   clusters = os.environ["tl_clusters"].split(",")
 
@@ -118,28 +118,29 @@ def main():
       gpu_id=str(gpu_id)
     else:
       cluster = ""
-      for c in clusters:
-        if code[:len(c)] == c:
-          cluster = c
-          code = code[len(c):]
-          break
+      if "g" in code:
+        cluster, gpu = code.split("g")
+      else:
+        cluster = code
+        gpu = "a"
 
-      if cluster == "":
+      if cluster not in clusters:
         print("Invalid cluster")
         exit()
-      if code != "" and (code[0] != 'g' or code[1] not in ["0", "1", "2", "3", "a"]):
+      if gpu not in ["0", "1", "2", "3", "a"]:
         print("Invalid GPU code")
         exit()
 
       # auto
-      if code == "" or code[1] == "a":
+      if gpu == "a":
         print("Finding a free gpu...")
         gpu_id = str(GPUtil.getFirstAvailable(cluster)[0])
       else:
-        gpu_id = code[1]
+        gpu_id = gpu
 
     print("Using cluster: " + cluster)
     print("Using gpu: " + gpu_id)
+    exit()
 
     print("Establishing session name...")
     windows = getWindowList()
