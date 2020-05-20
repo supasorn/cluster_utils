@@ -35,6 +35,7 @@ session_special = "UL"
 
 if "tl_clusters" not in os.environ:
   clusters = ["v1", "v2", "v3", "v4", "v7", "v8", "v9", "v10", "v23", "v24"]
+  # clusters = ["v2", "v3", "v4", "v7", "v8", "v9", "v10", "v23", "v24"]
 else:
   clusters = os.environ["tl_clusters"].split(",")
 
@@ -92,7 +93,7 @@ def showWindows():
 def getAvailableGPUs_fn(cluster):
   return (cluster, GPUtil.getAvailable(cluster, limit=4))
 
-def getAvailableGPUs():
+def getAvailableGPUs(numgpu = 1):
   p = Pool(len(clusters))
   gpu_list = p.map(getAvailableGPUs_fn, clusters)
 
@@ -105,7 +106,11 @@ def getAvailableGPUs():
   gpu_list.sort(key=lambda x:len(x[1]), reverse=True)
   # print(gpu_list)
 
-  return (gpu_list[0][0], gpu_list[0][1][0]) # cluster, gpu_id
+  print(gpu_list[0][1])
+  if len(gpu_list[0][1]) < numgpu:
+    raise Exception("%d gpus not available" % numgpu)
+
+  return (gpu_list[0][0], gpu_list[0][1][:numgpu]) # cluster, gpu_id
 
 def main():
   if sys.argv[1] == "ls":
@@ -122,11 +127,20 @@ def main():
     sp = sys.argv[1].split("@")
 
     code = sp[1]
+
+    if "#" in code: # user specify multiple gpus
+      sp = code.split("#")
+      code = sp[0]
+      num_gpu = int(sp[1])
+      if num_gpu < 1 or num_gpu > 4:
+        raise ValueError("num_gpu invalid")
+    else:
+      num_gpu=1
+
     if code == "": #automatically select cluster and gpu
       print("Finding a free cluster and a free gpu...")
-      cluster, gpu_id = getAvailableGPUs()
-      exit()
-      gpu_id=str(gpu_id)
+      cluster, gpu_id = getAvailableGPUs(num_gpu)
+      gpu_id = ",".join([str(x) for x in gpu_id])
     else:
       cluster = ""
       if "g" in code:
@@ -142,12 +156,18 @@ def main():
         print("Invalid GPU code")
         exit()
 
-      # auto
-      if gpu == "a":
-        print("Finding a free gpu...")
-        gpu_id = str(GPUtil.getFirstAvailable(cluster)[0])
+      if num_gpu > 1:
+        cluster, gpu_id = getAvailableGPUs_fn(cluster)
+        if len(gpu_id) < num_gpu:
+          raise Exception("%d gpus not available" % num_gpu)
+        gpu_id = ",".join([str(x) for x in gpu_id[:num_gpu]])
       else:
-        gpu_id = gpu
+        # auto
+        if gpu == "a":
+          print("Finding a free gpu...")
+          gpu_id = str(GPUtil.getFirstAvailable(cluster)[0])
+        else:
+          gpu_id = gpu
 
     print("Using cluster: " + cluster)
     print("Using gpu: " + gpu_id)
