@@ -156,12 +156,11 @@ def main():
       if cluster not in clusters:
         print("Invalid cluster")
         exit()
-      if gpu not in ["0", "1", "2", "3", "a"]:
-        print("Invalid GPU code")
-        exit()
+      # if gpu not in ["0", "1", "2", "3", "a"]:
+        # print("Invalid GPU code")
+        # exit()
 
       if num_gpu > 1:
-        print("here")
         cluster, gpu_id = getAvailableGPUs(num_gpu, [cluster])
         gpu_id = ",".join([str(x) for x in gpu_id[:num_gpu]])
       else:
