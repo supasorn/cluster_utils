@@ -93,14 +93,19 @@ def showWindows():
 def getAvailableGPUs_fn(cluster):
   return (cluster, GPUtil.getAvailable(cluster, limit=4))
 
-def getAvailableGPUs(numgpu = 1):
-  p = Pool(len(clusters))
-  gpu_list = p.map(getAvailableGPUs_fn, clusters)
+def getAvailableGPUs(numgpu = 1, custom_clusters=None):
+  if custom_clusters is not None:
+    cs = custom_clusters
+  else:
+    cs = clusters
+    
+  p = Pool(len(cs))
+  gpu_list = p.map(getAvailableGPUs_fn, cs)
 
-  power_saving = ["v4", "v8"]
+  no_power_saving = ["v23", "v24"]
   for gpu in gpu_list:
     random.shuffle(gpu[1])
-    if gpu[0] in power_saving:
+    if gpu[0] not in no_power_saving:
       gpu[1].pop()
 
   gpu_list.sort(key=lambda x:len(x[1]), reverse=True)
@@ -125,13 +130,12 @@ def main():
       exit()
 
     sp = sys.argv[1].split("@")
-
     code = sp[1]
 
     if "#" in code: # user specify multiple gpus
-      sp = code.split("#")
-      code = sp[0]
-      num_gpu = int(sp[1])
+      sp2 = code.split("#")
+      code = sp2[0]
+      num_gpu = int(sp2[1])
       if num_gpu < 1 or num_gpu > 4:
         raise ValueError("num_gpu invalid")
     else:
@@ -157,9 +161,8 @@ def main():
         exit()
 
       if num_gpu > 1:
-        cluster, gpu_id = getAvailableGPUs_fn(cluster)
-        if len(gpu_id) < num_gpu:
-          raise Exception("%d gpus not available" % num_gpu)
+        print("here")
+        cluster, gpu_id = getAvailableGPUs(num_gpu, [cluster])
         gpu_id = ",".join([str(x) for x in gpu_id[:num_gpu]])
       else:
         # auto
