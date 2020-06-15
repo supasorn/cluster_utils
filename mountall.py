@@ -12,15 +12,7 @@ import time
 import glob
 import argparse
 
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-clusters', type=str, default="v1,v2,v3,v4")
-parser.add_argument('-path', type=str, default="")
-
-args = parser.parse_args()
-
-def mountall():
-  for c in args.clusters.split(","):
-    os.system("sshfs -o IdentityFile=/home/supasorn/.ssh/id_rsa supasorn@%s:/ ~/mnt/%s" % (c, c))
+# args = argparse.parse_args()
 
 def tensorboard():
   print("Mounting all")
@@ -35,8 +27,41 @@ def tensorboard():
   print(cmd)
   os.system(cmd)
 
+def readClustersAndURLs():
+  clusters = {}
+  if "clusters" not in os.environ:
+    raise Exception("please define clusters environment")
+  cs = os.environ["clusters"].split(",")
+
+  f = open(os.path.expanduser("~/.ssh/config"), "r")
+  c = ""
+  for line in f.readlines():
+    if "Host " in line:
+      c = line[5:].strip()
+    if "HostName " in line:
+      if c in cs:
+        clusters[c] = line.strip()[8:].strip()
+
+  f.close()
+  print(clusters)
+  for cluster in clusters:
+    print(cluster)
+  # exit()
+  return clusters
+
+def cmd(st):
+  print(st)
+  os.system(st)
+
+def main():
+  clusters = readClustersAndURLs()
+  for cluster in clusters:
+    cmd("sudo umount -l ~/mnt/" + cluster)
+    cmd("mkdir ~/mnt/" + cluster)
+    cmd("sshfs -o follow_symlinks -o IdentityFile=/home/$USER/.ssh/id_rsa $USER@%s:/ ~/mnt/%s" % (cluster, cluster))
 
 if __name__== "__main__":
-  tensorboard()
+  main()
+  # tensorboard()
   # main()
 

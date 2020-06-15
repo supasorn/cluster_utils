@@ -98,14 +98,14 @@ def getAvailableGPUs(numgpu = 1, custom_clusters=None):
     cs = custom_clusters
   else:
     cs = clusters
-    
+
   p = Pool(len(cs))
   gpu_list = p.map(getAvailableGPUs_fn, cs)
 
-  no_power_saving = ["v23", "v24"]
+  no_power_saving = ["v7", "v8", "v9", "v10", "v23", "v24"]
   for gpu in gpu_list:
     random.shuffle(gpu[1])
-    if gpu[0] not in no_power_saving:
+    if gpu[0] not in no_power_saving and len(gpu[1]) > 0:
       gpu[1].pop()
 
   gpu_list.sort(key=lambda x:len(x[1]), reverse=True)
