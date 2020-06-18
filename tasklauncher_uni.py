@@ -33,10 +33,11 @@ import random
 
 session_special = "UL"
 
-# if "tl_clusters" not in os.environ:
-  # clusters = ["v1", "v2", "v3", "v4", "v7", "v8", "v9", "v10", "v23", "v24"]
-# else:
-clusters = os.environ["clusters"].split(",")
+if "clusters" not in os.environ:
+  clusters = ["v%d" % i for i in range(1, 18)]
+  print(clusters)
+else:
+  clusters = os.environ["clusters"].split(",")
 
 if "tl_venv" not in os.environ:
   # venv = "source /home/vll/venv_tf1.15/bin/activate"
@@ -83,10 +84,11 @@ def getWindowList():
   return k
 
 def showWindows():
-  p = Pool(len(clusters))
-  a = p.map(getWindowList, clusters)
+  # p = Pool(len(clusters))
+  a = getWindowList() #p.map(getWindowList)
   for i, x in enumerate(a):
-    print("Cluster " + clusters[i] + "\n  " + str(x) + "\n")
+    # print("Cluster " + clusters[i] + "\n  " + str(x) + "\n")
+    print(str(x))
 
 
 def getAvailableGPUs_fn(cluster):

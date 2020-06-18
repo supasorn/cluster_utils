@@ -76,6 +76,8 @@ def getGPUsInfo(cluster=""):
     stdout, stderr = p.communicate()
 
   output = stdout.decode('UTF-8')
+  if len(output) == 0:
+    return []
   root = ET.fromstring(output)
   info = []
   for child in root:
