@@ -21,7 +21,7 @@ Launch a job with a specific session name:
 '''
 
 import os
-import GPUtil
+from GPUtil_slim import *
 from subprocess import Popen, PIPE
 from multiprocessing import Pool
 from functools import partial
@@ -33,11 +33,10 @@ import random
 
 session_special = "UL"
 
-if "tl_clusters" not in os.environ:
-  clusters = ["v1", "v2", "v3", "v4", "v7", "v8", "v9", "v10", "v23", "v24"]
-  # clusters = ["v2", "v3", "v4", "v7", "v8", "v9", "v10", "v23", "v24"]
-else:
-  clusters = os.environ["tl_clusters"].split(",")
+# if "tl_clusters" not in os.environ:
+  # clusters = ["v1", "v2", "v3", "v4", "v7", "v8", "v9", "v10", "v23", "v24"]
+# else:
+clusters = os.environ["clusters"].split(",")
 
 if "tl_venv" not in os.environ:
   # venv = "source /home/vll/venv_tf1.15/bin/activate"
@@ -63,7 +62,7 @@ def get_ip():
   return IP
 
 def showGPUs_fn(cluster):
-  return "Cluster " + cluster + "\n" + GPUtil.showUtilization(ssh=cluster)
+  return showUtilization(cluster)
 
 def showGPUs():
   p = Pool(len(clusters))
@@ -91,7 +90,7 @@ def showWindows():
 
 
 def getAvailableGPUs_fn(cluster):
-  return (cluster, GPUtil.getAvailable(cluster, limit=4))
+  return (cluster, getAvailable(cluster))
 
 def getAvailableGPUs(numgpu = 1, custom_clusters=None):
   if custom_clusters is not None:
@@ -102,11 +101,11 @@ def getAvailableGPUs(numgpu = 1, custom_clusters=None):
   p = Pool(len(cs))
   gpu_list = p.map(getAvailableGPUs_fn, cs)
 
-  no_power_saving = ["v7", "v8", "v9", "v10", "v23", "v24"]
+  # no_power_saving = ["v7", "v8", "v9", "v10", "v23", "v24"]
   for gpu in gpu_list:
     random.shuffle(gpu[1])
-    if gpu[0] not in no_power_saving and len(gpu[1]) > 0:
-      gpu[1].pop()
+    # if gpu[0] not in no_power_saving and len(gpu[1]) > 0:
+      # gpu[1].pop()
 
   gpu_list.sort(key=lambda x:len(x[1]), reverse=True)
   # print(gpu_list)
@@ -167,7 +166,7 @@ def main():
         # auto
         if gpu == "a":
           print("Finding a free gpu...")
-          gpu_id = str(GPUtil.getFirstAvailable(cluster)[0])
+          gpu_id = str(getFirstAvailable(cluster))
         else:
           gpu_id = gpu
 
