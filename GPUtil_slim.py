@@ -62,7 +62,7 @@ def getUser(cluster, pid):
   return ""
 
 
-def getGPUsInfo(cluster=""):
+def getGPUsInfo(cluster="", getpid=False):
   if cluster != "":
     p = Popen(['ssh', cluster, "nvidia-smi", "-q", "-x"], stdout=PIPE)
     timer = Timer(3, p.kill)
@@ -86,13 +86,17 @@ def getGPUsInfo(cluster=""):
       gpu_util = int(child.find("utilization").find("gpu_util").text.replace(" %", ""))
       mem_util = int(child.find("utilization").find("memory_util").text.replace(" %", ""))
 
-      procs = child.find("processes").findall("process_info")
-      proc_info = []
-      for proc in procs:
-        pid = proc.find("pid").text
-        proc_info.append((pid, getUser(cluster, int(pid))))
+      if getpid:
+        procs = child.find("processes").findall("process_info")
+        proc_info = []
+        for proc in procs:
+          pid = proc.find("pid").text
+          proc_info.append((pid, getUser(cluster, int(pid))))
 
-      info.append((gpu_util, mem_util, proc_info))
+        info.append((gpu_util, mem_util, proc_info))
+      else:
+        info.append((gpu_util, mem_util))
+
   return info
 
 def printStatus(info, cpu_thresh=15, mem_thresh=15):
@@ -114,11 +118,9 @@ def printStatus(info, cpu_thresh=15, mem_thresh=15):
 def getAvailable(cluster, cpu_thresh=15, mem_thresh=15):
   info = getGPUsInfo(cluster)
   device = []
-  print(info)
   for i, g in enumerate(info):
     if g[0] < cpu_thresh and g[1] < mem_thresh:
       device.append(i)
-  print("Device", device)
   return device
 
 def getFirstAvailable(cluster, cpu_thresh=15, mem_thres=15):
@@ -129,7 +131,7 @@ def getFirstAvailable(cluster, cpu_thresh=15, mem_thres=15):
   return devices[0]
 
 def showUtilization(cluster):
-  info = getGPUsInfo(cluster)
+  info = getGPUsInfo(cluster, True)
   outstr = "Cluster " + cluster
   outstr += " " * (13 - len(outstr))
   return outstr + printStatus(info) + "\n"
