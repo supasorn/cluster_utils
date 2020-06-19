@@ -65,7 +65,7 @@ def getUser(cluster, pid):
 def getGPUsInfo(cluster="", getpid=False):
   if cluster != "":
     p = Popen(['ssh', cluster, "nvidia-smi", "-q", "-x"], stdout=PIPE)
-    timer = Timer(3, p.kill)
+    timer = Timer(9, p.kill)
     try:
       timer.start()
       stdout, stderr = p.communicate()
@@ -76,15 +76,20 @@ def getGPUsInfo(cluster="", getpid=False):
     stdout, stderr = p.communicate()
 
   output = stdout.decode('UTF-8')
-  if len(output) == 0:
+  try:
+    root = ET.fromstring(output)
+  except:
     return []
-  root = ET.fromstring(output)
+
   info = []
   for child in root:
     # print(child.tag, end='')
     if child.tag == "gpu":
       gpu_util = int(child.find("utilization").find("gpu_util").text.replace(" %", ""))
-      mem_util = int(child.find("utilization").find("memory_util").text.replace(" %", ""))
+
+      mem_util = (100 * int(child.find("fb_memory_usage").find("used").text.replace(" MiB", ""))
+                  / int(child.find("fb_memory_usage").find("total").text.replace(" MiB", "")))
+      # print(mem_util, int(child.find("utilization").find("memory_util").text.replace(" %", "")))
 
       if getpid:
         procs = child.find("processes").findall("process_info")
@@ -97,15 +102,19 @@ def getGPUsInfo(cluster="", getpid=False):
       else:
         info.append((gpu_util, mem_util))
 
+  print(cluster + "; ", end='')
+  sys.stdout.flush()
+
+
   return info
 
 def printStatus(info, cpu_thresh=15, mem_thresh=15):
   outstr = ""
   for g in info:
     if g[0] < cpu_thresh and g[1] < mem_thresh:
-      outstr += "\33[38;5;0m\33[48;5;82m%02d\33[0m " % g[0]
+      outstr += "\33[38;5;0m\33[48;5;82m%02d\33[0m " % g[1]
     else:
-      outstr += "\33[38;5;0m\33[48;5;196m%02d\33[0m " % g[0]
+      outstr += "\33[38;5;0m\33[48;5;196m%02d\33[0m " % g[1]
 
   proclist = []
   for g in info:
@@ -121,6 +130,7 @@ def getAvailable(cluster, cpu_thresh=15, mem_thresh=15):
   for i, g in enumerate(info):
     if g[0] < cpu_thresh and g[1] < mem_thresh:
       device.append(i)
+      # print("added ", cluster, i, g[0], g[1])
   return device
 
 def getFirstAvailable(cluster, cpu_thresh=15, mem_thres=15):

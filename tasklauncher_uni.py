@@ -68,6 +68,7 @@ def showGPUs_fn(cluster):
 def showGPUs():
   p = Pool(len(clusters))
   a = p.map(showGPUs_fn, clusters)
+  print("")
   for x in a:
     print(x)
 
