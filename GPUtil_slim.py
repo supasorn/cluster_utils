@@ -53,13 +53,10 @@ def getUser(cluster, pid):
     # look up the username from uid
     username = pwd.getpwuid(uid)[0]
     return username
-  
-  p = Popen(["ssh", cluster, "ps -o uname -p", str(pid)], stdout=PIPE)
+
+  p = Popen(["ssh", cluster, "ps -o user= -p", str(pid)], stdout=PIPE)
   stdout, stderr = p.communicate()
-  stdout = str(stdout)
-  if "\\n" in stdout:
-    return stdout.split("\\n")[1]
-  return ""
+  return stdout.decode("utf-8").strip()
 
 
 def getGPUsInfo(cluster="", getpid=False):
@@ -114,7 +111,7 @@ def printStatus(info, cpu_thresh=15, mem_thresh=15):
     if g[0] < cpu_thresh and g[1] < mem_thresh:
       outstr += "\33[38;5;0m\33[48;5;82m%02d\33[0m " % g[1]
     else:
-      outstr += "\33[38;5;0m\33[48;5;196m%02d\33[0m " % g[1]
+      outstr += "\33[38;5;0m\33[48;5;196m%02d\33[0m " % g[0]
 
   proclist = []
   for g in info:
