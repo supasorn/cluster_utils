@@ -59,10 +59,10 @@ def getUser(cluster, pid):
   return stdout.decode("utf-8").strip()
 
 
-def getGPUsInfo(cluster="", getpid=False):
+def getGPUsInfo(cluster="", getpid=False, timeout=9):
   if cluster != "":
     p = Popen(['ssh', cluster, "nvidia-smi", "-q", "-x"], stdout=PIPE)
-    timer = Timer(9, p.kill)
+    timer = Timer(timeout, p.kill)
     try:
       timer.start()
       stdout, stderr = p.communicate()
@@ -122,7 +122,7 @@ def printStatus(info, cpu_thresh=15, mem_thresh=15):
   return outstr
 
 def getAvailable(cluster, cpu_thresh=15, mem_thresh=15):
-  info = getGPUsInfo(cluster)
+  info = getGPUsInfo(cluster, getpid=False, timeout=3)
   device = []
   for i, g in enumerate(info):
     if g[0] < cpu_thresh and g[1] < mem_thresh:
