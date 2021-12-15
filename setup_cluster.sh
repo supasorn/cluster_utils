@@ -2,6 +2,8 @@
 
 # set -x;
 
+cp config ~/.ssh
+
 # config key
 if [ ! -f "`echo ~`/.ssh/id_rsa" ]; then
     ssh-keygen -f ~/.ssh/id_rsa -t rsa -N ''
@@ -18,7 +20,7 @@ read HOSTBASE
 echo "What is the range of the host? ex: 10 111 = range from 192.168.1.10-192.168.1.111"
 read START END
 
-for i in $(seq -f "$HOSTBASE%03g" $START $END); do
+for i in $(seq -f "$HOSTBASE%g" $START $END); do
     export HOST=$i
     expect -c '
     set SSH_USER $env(SSH_USER)
