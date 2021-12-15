@@ -101,7 +101,8 @@ def getLocalPath(local_storage, path, clone=True):
   if "HOSTNAME" in os.environ and os.environ["HOSTNAME"] == "dgx1":
     cluster = "dgx1"
   else:
-    cluster = re.search(r"v.*\d{2}", socket.gethostname())
+    cluster = re.search(r"ision.*\d{2}", socket.gethostname())
+    print(cluster)
 
   if cluster is None:
     print("NOT on cluster: " + path)
