@@ -1,5 +1,6 @@
 '''
-alias run="python .../cluster_utils/tasklauncher_uni.py"
+add this alias to bashrc or zshrc
+alias run="python YOUR_PATH/tasklauncher_uni.py"
 
 List gpu usage:
   run lsgpu
@@ -15,6 +16,9 @@ Launch a job on a particular cluster (e.g., on v3):
 
 Launch a job on a particular cluster on a particular gpu:
   run @v3g0 [cmd]
+
+Launch a job on a particular cluster using 4 gpus:
+  run @v3#4 [cmd]
 
 Launch a job with a specific session name:
   run name@v3g0 [cmd]
@@ -40,8 +44,7 @@ else:
   clusters = os.environ["clusters"].split(",")
 
 if "tl_venv" not in os.environ:
-  # venv = "source /home/vll/venv_tf1.15/bin/activate"
-  venv = "source /home/vll/venv_pytorch/bin/activate"
+  venv = "source /home/vll/venv_pytorch1.9/bin/activate"
 else:
   venv = os.environ["tl_venv"]
 
@@ -128,7 +131,7 @@ def main():
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   else:
     if "@" not in sys.argv[1]:
-      print("Wrong format. Needed: SESSION_NAME@ClUSTER[gNUM]")
+      print("Wrong format. Needed: SESSION_NAME@ClUSTER[gID][#NUMGPUs]")
       exit()
 
     sp = sys.argv[1].split("@")
@@ -138,7 +141,7 @@ def main():
       sp2 = code.split("#")
       code = sp2[0]
       num_gpu = int(sp2[1])
-      if num_gpu < 1 or num_gpu > 4:
+      if num_gpu < 0 or num_gpu > 4:
         raise ValueError("num_gpu invalid")
     else:
       num_gpu=1
@@ -162,7 +165,9 @@ def main():
         # print("Invalid GPU code")
         # exit()
 
-      if num_gpu > 1:
+      if num_gpu == 0:
+        gpu_id = ""
+      elif num_gpu > 1:
         cluster, gpu_id = getAvailableGPUs(num_gpu, [cluster])
         gpu_id = ",".join([str(x) for x in gpu_id[:num_gpu]])
       else:
