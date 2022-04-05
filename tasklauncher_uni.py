@@ -197,7 +197,7 @@ def main():
     print("SSHFS Mapping ...")
     user_host = getpass.getuser() + "@" + get_ip()
     target = "~/mnt_tl_" + platform.node() + "/"
-    sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa " + user_host + ":/ " + target + "\""
+    sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o StrictHostKeyChecking=no -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa " + user_host + ":/ " + target + "\""
     cmd(sshfs_cmd)
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
