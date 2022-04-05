@@ -66,3 +66,27 @@ Host v17
   User supasorn
   HostName 10.0.0.27
 
+Host v18
+  User supasorn
+  HostName 10.0.0.28
+
+Host v19
+  User supasorn
+  HostName 10.0.0.29
+
+Host v20
+  User supasorn
+  HostName 10.0.0.30
+
+Host v21
+  User supasorn
+  HostName 10.0.0.31
+
+Host v22
+  User supasorn
+  HostName 10.0.0.32
+
+Host v23
+  User supasorn
+  HostName 10.0.0.33
+

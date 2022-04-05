@@ -15,10 +15,9 @@ export SSH_USER
 echo "What is your password?"
 read -s PASSWORD 
 export PASSWORD
-echo "What is your fist 9 digit of your ip? ex: 192.168.1."
-read HOSTBASE
-echo "What is the range of the host? ex: 10 111 = range from 192.168.1.10-192.168.1.111"
-read START END
+HOSTBASE="10.0.0."
+START=11
+END=33
 
 for i in $(seq -f "$HOSTBASE%g" $START $END); do
     export HOST=$i
