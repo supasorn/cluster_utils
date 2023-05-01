@@ -39,7 +39,8 @@ session_special = "UL"
 
 if "clusters" not in os.environ:
   clusters = ["v%d" % i for i in range(1, 24)]
-  print("run")
+  print("what")
+  print(clusters)
 else:
   clusters = os.environ["clusters"].split(",")
 
