@@ -39,12 +39,12 @@ session_special = "UL"
 
 if "clusters" not in os.environ:
   clusters = ["v%d" % i for i in range(1, 24)]
-  print(clusters)
+  print("run")
 else:
   clusters = os.environ["clusters"].split(",")
 
 if "tl_venv" not in os.environ:
-  venv = "source /home/vll/venv_pytorch1.9/bin/activate"
+  venv = "source /home/vll/venv_pytorch2.0/bin/activate"
 else:
   venv = os.environ["tl_venv"]
 
