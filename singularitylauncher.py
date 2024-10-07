@@ -209,11 +209,11 @@ def main():
     # terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd + "; tmux detach"
     # terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd
     SING = "/home/supasorn/mnt_v1_singularity"
-    rcmd = "source ~/.zshrc && cd /code && " + " ".join(sys.argv[2:])
+    rcmd = "source ~/.zshrc && cd /host/" + os.getcwd() +  " && " + " ".join(sys.argv[2:])
     ccmd = f"""singularity exec --containall --nv \
         --bind {SING}/home:/home/supasorn \
         --bind /tmp:/tmp \
-        --bind .:/code \
+        --bind /:/host \
         "{SING}/sand" \
         /usr/bin/zsh -c '{rcmd}'"""
 
