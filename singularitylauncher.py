@@ -209,16 +209,16 @@ def main():
     # terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd + "; tmux detach"
     # terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd
     SING = "/home/supasorn/mnt_v1_singularity"
-    rcmd = "source ~/.zshrc && cd /host/" + os.getcwd() +  " && " + " ".join(sys.argv[2:])
+    rcmd = "source ~/.zshrc && conda activate forex && cd " + os.getcwd() +  " && " + tf_cmd 
     ccmd = f"""singularity exec --containall --nv \
         --bind {SING}/home:/home/supasorn \
         --bind /tmp:/tmp \
-        --bind /:/host \
+        --bind {target}:/host \
         "{SING}/sand" \
         /usr/bin/zsh -c '{rcmd}'"""
 
     # cmd(ccmd)
-    terminal_cmd = "cd " + target + os.getcwd() + " && " + ccmd
+    terminal_cmd = "cd " + target + os.getcwd().replace("/host", "") + " && " + ccmd
 
     print(windows)
     if len(windows) == 0:
@@ -231,7 +231,7 @@ def main():
 
 
     # https://unix.stackexchange.com/questions/266866/how-to-prevent-ctrlc-to-break-ssh-connection/841125
-    terminal_cmd = ' ssh ' + cluster + ' -t \\\"trap : INT; ' + terminal_cmd + ' ; echo \\\"' + tf_cmd + '\\\" >> ~/.zsh_history; /bin/zsh \\\"; exit' # last exit is for when closing ssh connection, also close ROG
+    terminal_cmd = ' ssh ' + cluster + ' -t \\\"trap : INT; ' + terminal_cmd + ' \\\"' # last exit is for when closing ssh connection, also close ROG
 
     tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\;'
 
