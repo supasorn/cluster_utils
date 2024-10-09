@@ -1,27 +1,30 @@
 '''
 add this alias to bashrc or zshrc
-alias run="python YOUR_PATH/tasklauncher_uni.py"
+alias sg="python YOUR_PATH/singularitylauncher.py"
 
 List gpu usage:
-  run lsgpu
+  sg lsgpu
 
 List running tasks
-  run ls
+  sg ls
+
+Launch a singularity container in the current directory
+  sg here
 
 Launch a job on some free gpu in a some free cluster:
-  run @ [cmd]
+  sg @ [cmd]
 
 Launch a job on a particular cluster (e.g., on v3):
-  run @v3 [cmd]
+  sg @v3 [cmd]
 
 Launch a job on a particular cluster on a particular gpu:
-  run @v3g0 [cmd]
+  sg @v3g0 [cmd]
 
 Launch a job on a particular cluster using 4 gpus:
-  run @v3#4 [cmd]
+  sg @v3#4 [cmd]
 
 Launch a job with a specific session name:
-  run name@v3g0 [cmd]
+  sg name@v3g0 [cmd]
 '''
 
 import os
@@ -42,19 +45,15 @@ from rich.spinner import Spinner
 
 session_special = "UL"
 console = Console()
+singularity_folder = "v1:/home2/supasorn/singularity"
 
 if "clusters" not in os.environ:
   clusters = ["v%d" % i for i in range(1, 24)]
-  print(clusters)
 else:
   clusters = os.environ["clusters"].split(",")
 
 cluster_status = {cluster: "waiting" for cluster in clusters}
 
-if "tl_venv" not in os.environ:
-  venv = "source /home/vll/venv_pytorch2.0/bin/activate"
-else:
-  venv = os.environ["tl_venv"]
 
 def cmd(a):
   print("  " + a)
@@ -156,6 +155,8 @@ def main():
     showGPUs()
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
+  elif sys.argv[1] == "here":
+
   else:
     if "@" not in sys.argv[1]:
       print("Wrong format. Needed: SESSION_NAME@ClUSTER[gID][#NUMGPUs]")
@@ -228,8 +229,6 @@ def main():
     cmd(sshfs_cmd)
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
-    # terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd + "; tmux detach"
-    # terminal_cmd = venv + "; cd " + target + os.getcwd() + "; " + tf_cmd
     SING = "/home/supasorn/mnt_v1_singularity"
     rcmd = "source ~/.zshrc && conda activate forex && cd " + os.getcwd() +  " && " + tf_cmd 
     ccmd = f"""singularity exec --containall --nv \

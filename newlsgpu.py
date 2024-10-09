@@ -31,15 +31,9 @@ def update_table():
           table.add_row(cl, st)
   return table
 
-def showUtilization(cluster):
-  info = getGPUsInfo(cluster, True, timeout=10)
-  # outstr = " " * (13 - len(outstr))
-  # return outstr + printStatus(info) + "\n"
-  return printStatus(info)
-
 def showGPUs_fn(cluster):
-  out = showUtilization(cluster)
-  return cluster, out
+  info = getGPUsInfo(cluster, True, timeout=10)
+  return cluster, printStatus(info)
 
 def showGPUs():
   with Live(update_table(), console=console, refresh_per_second=10, transient=False) as live:
