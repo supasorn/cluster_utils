@@ -37,7 +37,7 @@ def showGPUs_fn(cluster):
   return cluster, Text.from_ansi(printStatus(info))
 
 def showGPUs():
-  with Live(update_table(), console=console, refresh_per_second=10, transient=False) as live:
+  with Live(update_table(), console=console, refresh_per_second=5, transient=False) as live:
     with Pool(len(clusters)) as p:
       for cluster, status in p.imap_unordered(showGPUs_fn, clusters):
         cluster_status[cluster] = status

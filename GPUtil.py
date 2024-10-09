@@ -54,14 +54,14 @@ def getUser(cluster, pid):
     username = pwd.getpwuid(uid)[0]
     return username
 
-  p = Popen(["ssh", cluster, "ps -o user= -p", str(pid)], stdout=PIPE)
+  p = Popen(["ssh", '-o', 'StrictHostKeyChecking=no', cluster, "ps -o user= -p", str(pid)], stdout=PIPE, stderr=PIPE)
   stdout, stderr = p.communicate()
   return stdout.decode("utf-8").strip()
 
 
 def getGPUsInfo(cluster="", getpid=False, timeout=9):
   if cluster != "":
-    p = Popen(['ssh', cluster, "nvidia-smi", "-q", "-x"], stdout=PIPE)
+    p = Popen(['ssh', '-o', 'StrictHostKeyChecking=no', cluster, "nvidia-smi", "-q", "-x"], stdout=PIPE, stderr=PIPE)
     timer = Timer(timeout, p.kill)
     try:
       timer.start()
@@ -101,7 +101,7 @@ def getGPUsInfo(cluster="", getpid=False, timeout=9):
         info.append((gpu_util, mem_util))
 
   # print(cluster + "; ", end='')
-  sys.stdout.flush()
+  # sys.stdout.flush()
 
 
   return info
