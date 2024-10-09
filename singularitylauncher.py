@@ -156,6 +156,7 @@ def main():
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   elif sys.argv[1] == "here":
+    os.system(f"singularity exec --containall --nv --bind /:/host {singularity_folder.split(':')[-1]} /usr/bin/zsh")
 
   else:
     if "@" not in sys.argv[1]:
