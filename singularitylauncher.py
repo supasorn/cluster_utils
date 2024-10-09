@@ -34,16 +34,22 @@ import socket
 import getpass
 import platform
 import random
+from rich.console import Console
+from rich.table import Table
+from rich.live import Live
+from rich import box
+from rich.spinner import Spinner
 
 session_special = "UL"
-
-
+console = Console()
 
 if "clusters" not in os.environ:
   clusters = ["v%d" % i for i in range(1, 24)]
   print(clusters)
 else:
   clusters = os.environ["clusters"].split(",")
+
+cluster_status = {cluster: "waiting" for cluster in clusters}
 
 if "tl_venv" not in os.environ:
   venv = "source /home/vll/venv_pytorch2.0/bin/activate"
@@ -66,16 +72,6 @@ def get_ip():
   finally:
     s.close()
   return IP
-
-def showGPUs_fn(cluster):
-  return showUtilization(cluster)
-
-def showGPUs():
-  p = Pool(len(clusters))
-  a = p.map(showGPUs_fn, clusters)
-  print("")
-  for x in a:
-    print(x)
 
 def getWindowList():
   stdout, stderr = Popen(['tmux list-windows -t ' + session_special], stdout=PIPE, shell=True).communicate()
@@ -125,6 +121,32 @@ def getAvailableGPUs(numgpu = 1, custom_clusters=None):
   return (gpu_list[0][0], gpu_list[0][1][:numgpu]) # cluster, gpu_id
 
 
+def update_table():
+  table = Table(title="")
+  # table.row_styles = ["none", "dim"]
+  table.show_lines = True
+  table.box = box.SIMPLE
+  table.add_column("Node", justify="left")
+  table.add_column("Status", justify="left")
+  for cl, st in cluster_status.items():
+      if st == "waiting":
+          # Use a spinner for the "waiting" state
+          spinner = Spinner("dots", text="")
+          table.add_row(cl, spinner)
+      else:
+          table.add_row(cl, st)
+  return table
+
+def showGPUs_fn(cluster):
+  info = getGPUsInfo(cluster, True, timeout=10)
+  return cluster, printStatus(info)
+
+def showGPUs():
+  with Live(update_table(), console=console, refresh_per_second=10, transient=False) as live:
+    with Pool(len(clusters)) as p:
+      for cluster, status in p.imap_unordered(showGPUs_fn, clusters):
+        cluster_status[cluster] = status
+        live.update(update_table())
 #
 # exit()
 def main():
