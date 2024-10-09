@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.live import Live
 from rich import box
+from rich.text import Text
 from rich.spinner import Spinner
 import random
 
@@ -20,8 +21,8 @@ def update_table():
   # table.row_styles = ["none", "dim"]
   table.show_lines = True
   table.box = box.SIMPLE
-  table.add_column("Node", justify="left")
-  table.add_column("Status", justify="left")
+  table.add_column("Node", justify="left", no_wrap=True, min_width=3)
+  table.add_column("Status", justify="left", no_wrap=True, min_width=30)
   for cl, st in cluster_status.items():
       if st == "waiting":
           # Use a spinner for the "waiting" state
@@ -33,7 +34,7 @@ def update_table():
 
 def showGPUs_fn(cluster):
   info = getGPUsInfo(cluster, True, timeout=10)
-  return cluster, printStatus(info)
+  return cluster, Text.from_ansi(printStatus(info))
 
 def showGPUs():
   with Live(update_table(), console=console, refresh_per_second=10, transient=False) as live:

@@ -100,7 +100,7 @@ def getGPUsInfo(cluster="", getpid=False, timeout=9):
       else:
         info.append((gpu_util, mem_util))
 
-  print(cluster + "; ", end='')
+  # print(cluster + "; ", end='')
   sys.stdout.flush()
 
 
@@ -120,7 +120,7 @@ def printStatus(info, cpu_thresh=15, mem_thresh=15):
 
   proclist = []
   for g in info:
-    users = [proc[1] for proc in g[2]]
+    users = [proc[1].strip() for proc in g[2]]
     if len(users):
       proclist.append(",".join(users))
   outstr += " | ".join(proclist)
