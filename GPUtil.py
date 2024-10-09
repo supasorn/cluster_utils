@@ -76,6 +76,7 @@ def getGPUsInfo(cluster="", getpid=False, timeout=9):
   try:
     root = ET.fromstring(output)
   except:
+    return output.split("\n")[0].strip()
     return []
 
   info = []
@@ -106,6 +107,10 @@ def getGPUsInfo(cluster="", getpid=False, timeout=9):
   return info
 
 def printStatus(info, cpu_thresh=15, mem_thresh=15):
+  # if info is a string return it
+  if type(info) == str:
+    return info
+
   outstr = ""
   for g in info:
     if g[0] < cpu_thresh and g[1] < mem_thresh:
@@ -122,7 +127,7 @@ def printStatus(info, cpu_thresh=15, mem_thresh=15):
   return outstr
 
 def getAvailable(cluster, cpu_thresh=15, mem_thresh=15):
-  info = getGPUsInfo(cluster, getpid=False, timeout=3)
+  info = getGPUsInfo(cluster, getpid=False, timeout=10)
   device = []
   for i, g in enumerate(info):
     if g[0] < cpu_thresh and g[1] < mem_thresh:

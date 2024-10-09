@@ -15,22 +15,12 @@ console = Console()
 
 cluster_status = {cluster: "waiting" for cluster in clusters}
 
-# def update_table():
-    # table = Table(title="")
-    # table.row_styles = ["none", "dim"]
-    # table.show_lines = True
-    # table.box = box.SIMPLE
-    # table.add_column("Cluster", justify="left")
-    # table.add_column("Status", justify="left")
-    # for cl, st in cluster_status.items():
-        # table.add_row(cl, st)
-    # return table
 def update_table():
   table = Table(title="")
-  table.row_styles = ["none", "dim"]
+  # table.row_styles = ["none", "dim"]
   table.show_lines = True
   table.box = box.SIMPLE
-  table.add_column("Cluster", justify="left")
+  table.add_column("Node", justify="left")
   table.add_column("Status", justify="left")
   for cl, st in cluster_status.items():
       if st == "waiting":
@@ -42,7 +32,7 @@ def update_table():
   return table
 
 def showUtilization(cluster):
-  info = getGPUsInfo(cluster, True)
+  info = getGPUsInfo(cluster, True, timeout=10)
   # outstr = " " * (13 - len(outstr))
   # return outstr + printStatus(info) + "\n"
   return printStatus(info)
@@ -52,7 +42,7 @@ def showGPUs_fn(cluster):
   return cluster, out
 
 def showGPUs():
-  with Live(update_table(), console=console, refresh_per_second=10) as live:
+  with Live(update_table(), console=console, refresh_per_second=10, transient=False) as live:
     with Pool(len(clusters)) as p:
       for cluster, status in p.imap_unordered(showGPUs_fn, clusters):
         cluster_status[cluster] = status
