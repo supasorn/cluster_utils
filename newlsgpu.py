@@ -25,7 +25,7 @@ def update_table():
   for cl, st in cluster_status.items():
       if st == "waiting":
           # Use a spinner for the "waiting" state
-          spinner = Spinner("dots", text="waiting")
+          spinner = Spinner("dots", text="")
           table.add_row(cl, spinner)
       else:
           table.add_row(cl, st)
