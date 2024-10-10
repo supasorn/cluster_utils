@@ -184,7 +184,7 @@ def main():
       sf = singularity_folder
 
   
-    os.system(f"singularity exec --containall --nv --bind {singularity_folder}/home:/home/$USER --bind /:/host {singularity_folder}/sand /usr/bin/zsh -is eval 'cd /host/{os.getcwd()}'")
+    os.system(f"singularity exec --containall --nv --bind {sf}/home:/home/$USER --bind /:/host {sf}/sand /usr/bin/zsh -is eval 'cd /host/{os.getcwd()}'")
 
 
   else:
