@@ -61,7 +61,6 @@ def is_localhost(alias):
   try:
     ip_address = socket.gethostbyname(alias)
     local_ips = {addr.address for iface in psutil.net_if_addrs().values() for addr in iface}
-    print(local_ips)
     return ip_address in local_ips
   except socket.gaierror:
     # If the alias cannot be resolved, return False
@@ -174,7 +173,7 @@ def main():
       # mkdir locally if not exist
       os.system(f"mkdir -p {target}")
       # umount if already mounted
-      os.system(f"umount {singularity_folder}")
+      os.system(f"umount {target}")
 
       sshfs_cmd = "sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target 
       cmd(sshfs_cmd)
