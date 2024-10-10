@@ -174,7 +174,7 @@ def main():
       user_host = getpass.getuser() + "@" + get_ip()
       target = f"~/automnt_{singularity_host}_singularity"
       # mkdir locally if not exist
-      os.system(f"mkdir -p {singularity_folder}")
+      os.system(f"mkdir -p {target}")
       # umount if already mounted
       os.system(f"umount {singularity_folder}")
 
