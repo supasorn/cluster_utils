@@ -178,7 +178,7 @@ def main():
       # umount if already mounted
       os.system(f"umount {singularity_folder}")
 
-      sshfs_cmd = "sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + ":" + target 
+      sshfs_cmd = "sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target 
       cmd(sshfs_cmd)
 
   else:
