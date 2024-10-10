@@ -168,9 +168,7 @@ def main():
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   elif sys.argv[1] == "here":
-    if is_localhost(singularity_host):
-      os.system(f"singularity exec --containall --nv --bind {singularity_folder}/home:/home/$USER --bind /:/host {singularity_folder}/sand /usr/bin/zsh -is eval 'cd /host/{os.getcwd()}'")
-    else:
+    if not is_localhost(singularity_host):
       user_host = getpass.getuser() + "@" + get_ip()
       target = f"~/automnt_{singularity_host}_singularity"
       # mkdir locally if not exist
@@ -180,6 +178,14 @@ def main():
 
       sshfs_cmd = "sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target 
       cmd(sshfs_cmd)
+
+      sf = target
+    else:
+      sf = singularity_folder
+
+  
+    os.system(f"singularity exec --containall --nv --bind {singularity_folder}/home:/home/$USER --bind /:/host {singularity_folder}/sand /usr/bin/zsh -is eval 'cd /host/{os.getcwd()}'")
+
 
   else:
     if "@" not in sys.argv[1]:
