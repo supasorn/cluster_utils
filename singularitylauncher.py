@@ -43,10 +43,12 @@ from rich.live import Live
 from rich import box
 from rich.text import Text
 from rich.spinner import Spinner
+import psutil
 
 session_special = "UL"
 console = Console()
-singularity_folder = "v1:/home2/supasorn/singularity"
+singularity_location = "v1:/home2/supasorn/singularity"
+singularity_host, singularity_folder = singularity_location.split(":")
 
 if "clusters" not in os.environ:
   clusters = ["v%d" % i for i in range(1, 24)]
@@ -55,6 +57,15 @@ else:
 
 cluster_status = {cluster: "waiting" for cluster in clusters}
 
+def is_localhost(alias):
+  try:
+    ip_address = socket.gethostbyname(alias)
+    local_ips = {addr.address for iface in psutil.net_if_addrs().values() for addr in iface}
+    print(local_ips)
+    return ip_address in local_ips
+  except socket.gaierror:
+    # If the alias cannot be resolved, return False
+    return False
 
 def cmd(a):
   print("  " + a)
@@ -157,7 +168,18 @@ def main():
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   elif sys.argv[1] == "here":
-    os.system(f"singularity exec --containall --nv --bind /:/host {singularity_folder.split(':')[-1]} /usr/bin/zsh")
+    if is_localhost(singularity_host):
+      os.system(f"singularity exec --containall --nv --bind {singularity_folder}/home:/home/$USER --bind /:/host {singularity_folder}/sand /usr/bin/zsh -is eval 'cd /host/{os.getcwd()}'")
+    else:
+      user_host = getpass.getuser() + "@" + get_ip()
+      target = f"~/automnt_{singularity_host}_singularity"
+      # mkdir locally if not exist
+      os.system(f"mkdir -p {singularity_folder}")
+      # umount if already mounted
+      os.system(f"umount {singularity_folder}")
+
+      sshfs_cmd = "sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + ":" + target 
+      cmd(sshfs_cmd)
 
   else:
     if "@" not in sys.argv[1]:
