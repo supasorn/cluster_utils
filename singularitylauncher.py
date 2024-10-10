@@ -171,9 +171,9 @@ def main():
       user_host = getpass.getuser() + "@" + get_ip()
       target = f"~/automnt_{singularity_host}_singularity"
       # mkdir locally if not exist
-      os.system(f"mkdir -p {target}")
+      cmd(f"mkdir -p {target}")
       # umount if already mounted
-      os.system(f"umount {target}")
+      cmd(f"umount {target}")
 
       sshfs_cmd = "sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target 
       cmd(sshfs_cmd)
@@ -183,7 +183,7 @@ def main():
       sf = singularity_folder
 
   
-    os.system(f"singularity exec --containall --nv --bind {sf}/home:/home/$USER --bind /:/host {sf}/sand /usr/bin/zsh -is eval 'cd /host/{os.getcwd()}'")
+    cmd(f"singularity exec --containall --nv --bind {sf}/home:/home/$USER --bind /:/host {sf}/sand /usr/bin/zsh -is eval 'cd /host/{os.getcwd()}'")
 
 
   else:
