@@ -66,7 +66,10 @@ def is_localhost(alias):
     # If the alias cannot be resolved, return False
     return False
 
-def cmd(a):
+def cmd(a, cluster=""):
+  if cluster != "":
+    a = "ssh " + cluster + " -t \"" + a + "\""
+
   print("  " + a)
   os.system(a)
 
@@ -166,24 +169,33 @@ def main():
     showGPUs()
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
-  elif sys.argv[1] == "here":
-    if not is_localhost(singularity_host):
+  elif sys.argv[1] == "here" or sys.argv[1] == "sg":
+    cluster = ""
+    if len(sys.argv) == 3:
+      if sys.argv[2][0] == "@":
+        cluster = sys.argv[2][1:]
+
+    if (cluster != "" and singularity_host != cluster) or (cluster == "" and not is_localhost(singularity_host)):
       user_host = getpass.getuser() + "@" + get_ip()
       target = f"~/automnt_{singularity_host}_singularity"
       # mkdir locally if not exist
-      cmd(f"mkdir -p {target}")
+      cmd(f"mkdir -p {target}", cluster)
       # umount if already mounted
-      cmd(f"umount {target}")
+      cmd(f"umount {target}", cluster)
 
-      sshfs_cmd = "sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target 
-      cmd(sshfs_cmd)
+      sshfs_cmd = "nohup sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target 
+      cmd(sshfs_cmd, cluster)
 
       sf = target
     else:
       sf = singularity_folder
 
+    if sys.argv[1] == "here":
+      extracmd = f"-is eval cd /host/{os.getcwd()}"
+    else:
+      extracmd = ""
   
-    cmd(f"singularity exec --containall --nv --bind {sf}/home:/home/$USER --bind /:/host {sf}/sand /usr/bin/zsh -is eval 'cd /host/{os.getcwd()}'")
+    cmd(f"singularity exec --containall --nv --bind {sf}/home:/home/$USER --bind /:/host {sf}/sand /usr/bin/zsh {extracmd}", cluster)
 
 
   else:
@@ -259,7 +271,7 @@ def main():
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
     SING = "/home/supasorn/mnt_v1_singularity"
-    rcmd = "source ~/.zshrc && conda activate forex && cd " + os.getcwd() +  " && " + tf_cmd 
+    rcmd = "source ~/.zshrc && cd " + os.getcwd() +  " && " + tf_cmd 
     ccmd = f"""singularity exec --containall --nv \
         --bind {SING}/home:/home/supasorn \
         --bind /tmp:/tmp \
