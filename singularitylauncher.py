@@ -193,17 +193,19 @@ def main():
     if cluster != "": # sshfs map current folder to cluster
 
       target = "~/automnt_" + platform.node() + "/"
+      # expand target
+      target = os.path.expanduser(target)
+
       cmd(f"mkdir -p {target}", cluster)
       cmd(f"umount {target}", cluster)
       cmd(f"nohup sshfs -o StrictHostKeyChecking=no -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa {user_host}:/ {target}", cluster)
 
+    extracmd = ""
     if sys.argv[1] == "here":
       if cluster != "":
-        extracmd = f"-is eval cd {target}{os.getcwd()}"
+        extracmd = f"-is eval cd /host/{target}{os.getcwd()}"
       else:
         extracmd = f"-is eval cd /host/{os.getcwd()}"
-    else:
-      extracmd = ""
   
     cmd(f"singularity exec --containall --nv --bind {sf}/home:/home/$USER --bind /:/host {sf}/sand /usr/bin/zsh {extracmd}", cluster)
 
