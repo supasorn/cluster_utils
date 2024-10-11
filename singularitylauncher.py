@@ -199,7 +199,7 @@ def main():
 
     if sys.argv[1] == "here":
       if cluster != "":
-        extracmd = f"-is eval cd /{target}/{os.getcwd()}"
+        extracmd = f"-is eval cd {target}{os.getcwd()}"
       else:
         extracmd = f"-is eval cd /host/{os.getcwd()}"
     else:
