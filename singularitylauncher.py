@@ -177,21 +177,31 @@ def main():
 
     if (cluster != "" and singularity_host != cluster) or (cluster == "" and not is_localhost(singularity_host)):
       user_host = getpass.getuser() + "@" + get_ip()
-      target = f"~/automnt_{singularity_host}_singularity"
+      target_sing = f"~/automnt_{singularity_host}_singularity"
       # mkdir locally if not exist
-      cmd(f"mkdir -p {target}", cluster)
+      cmd(f"mkdir -p {target_sing}", cluster)
       # umount if already mounted
-      cmd(f"umount {target}", cluster)
+      cmd(f"umount {target_sing}", cluster)
 
-      sshfs_cmd = "nohup sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target 
+      sshfs_cmd = "nohup sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target_sing
       cmd(sshfs_cmd, cluster)
 
-      sf = target
+      sf = target_sing
     else:
       sf = singularity_folder
 
+    if cluster != "": # sshfs map current folder to cluster
+
+      target = "~/automnt_" + platform.node() + "/"
+      cmd(f"mkdir -p {target}", cluster)
+      cmd(f"umount {target}", cluster)
+      cmd(f"nohup sshfs -o StrictHostKeyChecking=no -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa {user_host}:/ {target}", cluster)
+
     if sys.argv[1] == "here":
-      extracmd = f"-is eval cd /host/{os.getcwd()}"
+      if cluster != "":
+        extracmd = f"-is eval cd /{target}/{os.getcwd()}"
+      else:
+        extracmd = f"-is eval cd /host/{os.getcwd()}"
     else:
       extracmd = ""
   
