@@ -59,6 +59,13 @@ def getUser(cluster, pid):
   return stdout.decode("utf-8").strip()
 
 
+def toInt(s):
+   try:
+     return int(s)
+   except (ValueError, TypeError):
+     return -1
+  
+
 def getGPUsInfo(cluster="", getpid=False, timeout=9):
   if cluster != "":
     p = Popen(['ssh', '-o', 'StrictHostKeyChecking=no', cluster, "nvidia-smi", "-q", "-x"], stdout=PIPE, stderr=PIPE)
@@ -83,10 +90,10 @@ def getGPUsInfo(cluster="", getpid=False, timeout=9):
   for child in root:
     # print(child.tag, end='')
     if child.tag == "gpu":
-      gpu_util = int(child.find("utilization").find("gpu_util").text.replace(" %", ""))
+      gpu_util = toInt(child.find("utilization").find("gpu_util").text.replace(" %", ""))
 
-      mem_util = (100 * int(child.find("fb_memory_usage").find("used").text.replace(" MiB", ""))
-                  / int(child.find("fb_memory_usage").find("total").text.replace(" MiB", "")))
+      mem_util = (100 * toInt(child.find("fb_memory_usage").find("used").text.replace(" MiB", ""))
+                  / toInt(child.find("fb_memory_usage").find("total").text.replace(" MiB", "")))
       # print(mem_util, int(child.find("utilization").find("memory_util").text.replace(" %", "")))
 
       if getpid:

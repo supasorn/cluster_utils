@@ -151,7 +151,7 @@ def update_table():
   return table
 
 def showGPUs_fn(cluster):
-  info = getGPUsInfo(cluster, True, timeout=10)
+  info = getGPUsInfo(cluster, True, timeout=60)
   return cluster, Text.from_ansi(printStatus(info))
 
 def showGPUs():
