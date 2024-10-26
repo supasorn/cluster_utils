@@ -166,7 +166,7 @@ def showGPUs():
 # def sshfs_mount(src, target):
 
 def mount_singularity(cluster=""):
-  if not is_localhost(singularity_host):
+  if not is_localhost(singularity_host) and cluster != singularity_host:
     target = "~/automnt_" + singularity_host + "_singularity"
     if not os.path.exists(target):
       cmd("mkdir -p " + target, cluster)
