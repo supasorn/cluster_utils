@@ -39,8 +39,6 @@ session_special = "UL"
 
 if "clusters" not in os.environ:
   clusters = ["v%d" % i for i in range(1, 24)]
-  print("what")
-  print(clusters)
 else:
   clusters = os.environ["clusters"].split(",")
 
@@ -207,19 +205,19 @@ def main():
 
     print(windows)
     if len(windows) == 0:
-      tmux_creation = 'tmux new -A -s ' + session_special + ' -n ' + session_name + '\;'
+      tmux_creation = 'tmux new -A -s ' + session_special + ' -n ' + session_name + '\\;'
     elif session_name in windows:
       print("Duplicate session name")
       exit()
     else:
-      tmux_creation = 'tmux new -A -s ' + session_special + '\; new-window -t ' + session_special + ' -n ' + session_name + ' \;'
+      tmux_creation = 'tmux new -A -s ' + session_special + '\\; new-window -t ' + session_special + ' -n ' + session_name + ' \\;'
 
 
     # https://unix.stackexchange.com/questions/266866/how-to-prevent-ctrlc-to-break-ssh-connection/841125
     terminal_cmd = ' ssh ' + cluster + ' -t \\\"trap : INT; ' + terminal_cmd + ' ; echo \\\"' + tf_cmd + '\\\" >> ~/.zsh_history; /bin/zsh \\\"; exit' # last exit is for when closing ssh connection, also close ROG
 
     # tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\; splitw -l 4 \; send-keys "' + tf_cmd + '" \; select-pane -P \'bg=colour234 fg=colour72\' \; select-pane -t 1 \;'
-    tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\;'
+    tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\\;'
 
     cmd(tmux_cmd)
     # print(tmux_cmd)

@@ -1,30 +1,30 @@
 '''
 add this alias to bashrc or zshrc
-alias sg="python YOUR_PATH/singularitylauncher.py"
+alias run="python YOUR_PATH/singularitylauncher.py"
 
 List gpu usage:
-  sg lsgpu
+  run lsgpu
 
 List running tasks
-  sg ls
+  run ls
 
 Launch a singularity container in the current directory
-  sg here
+  run sg
 
 Launch a job on some free gpu in a some free cluster:
-  sg @ [cmd]
+  run @ [cmd]
 
 Launch a job on a particular cluster (e.g., on v3):
-  sg @v3 [cmd]
+  run @v3 [cmd]
 
 Launch a job on a particular cluster on a particular gpu:
-  sg @v3g0 [cmd]
+  run @v3g0 [cmd]
 
 Launch a job on a particular cluster using 4 gpus:
-  sg @v3#4 [cmd]
+  run @v3#4 [cmd]
 
 Launch a job with a specific session name:
-  sg name@v3g0 [cmd]
+  run name@v3g0 [cmd]
 '''
 
 import os
@@ -160,6 +160,18 @@ def showGPUs():
       for cluster, status in p.imap_unordered(showGPUs_fn, clusters):
         cluster_status[cluster] = status
         live.update(update_table())
+
+# def sshfs_mount(src, target):
+
+def mount_singularity_on_local():
+  if not is_localhost(singularity_host):
+    target = "~/automnt_" + singularity_host + "_singularity/"
+    if not os.path.exists(target):
+      os.makedirs(target)
+    if os.path.ismount(target):
+      os.system("umount " + target)
+    cmd(f"nohup sshfs -o StrictHostKeyChecking=no,follow_symlinks,cache=no,allow_other -o IdentityFile=~/.ssh/id_rsa {singularity_location}:/ {target}")
+
 #
 # exit()
 def main():
@@ -169,6 +181,10 @@ def main():
     showGPUs()
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
+  elif sys.argv[1] == "sg":
+    mount_singularity_on_local()
+
+
   elif sys.argv[1] == "here" or sys.argv[1] == "sg":
     cluster = ""
     if len(sys.argv) == 3:
