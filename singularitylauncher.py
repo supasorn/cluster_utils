@@ -167,13 +167,14 @@ def showGPUs():
 
 def mount_singularity_on_local():
   if not is_localhost(singularity_host):
-    target = "~/automnt_" + singularity_host + "_singularity/"
+    target = "~/automnt_" + singularity_host + "_singularity"
     if not os.path.exists(target):
       cmd("mkdir -p " + target)
     if os.path.ismount(target):
       cmd("umount " + target)
-    cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,uid=0,gid=0,cache=no,noauto_cache,entry_timeout=0,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1")
-  return target
+    cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,entry_timeout=0,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1")
+    return target
+  return singularity_folder
 
 #
 # exit()
