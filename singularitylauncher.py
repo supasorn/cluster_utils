@@ -271,9 +271,9 @@ def main():
     local_sing = mount_singularity(cluster)
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
-    rcmd = "cd /host/" + os.getcwd() 
+    rcmd = "cd /remote/" + os.getcwd() 
 
-    terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --bind /tmp:/tmp --bind {target}:/host {local_sing}/sand /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
+    terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --bind /tmp:/tmp --bind {target}:/remote {local_sing}/sand /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
 
     print(windows)
     if len(windows) == 0:
