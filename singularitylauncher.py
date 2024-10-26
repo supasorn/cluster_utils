@@ -8,7 +8,7 @@ List gpu usage:
 List running tasks
   run ls
 
-Launch a singularity container in the current directory
+Launch a singularity container
   run sg
 
 Launch a job on some free gpu in a some free cluster:
@@ -70,7 +70,7 @@ def cmd(a, cluster=""):
   if cluster != "":
     a = "ssh " + cluster + " -t \"" + a + "\""
 
-  red = "\033[31m"
+  red = "\033[32m"
   reset = "\033[0m"
   print(f"{red}Exec:{reset} {a}")
   os.system(a)
@@ -165,14 +165,15 @@ def showGPUs():
 
 # def sshfs_mount(src, target):
 
-def mount_singularity_on_local():
+def mount_singularity(cluster=""):
   if not is_localhost(singularity_host):
     target = "~/automnt_" + singularity_host + "_singularity"
     if not os.path.exists(target):
-      cmd("mkdir -p " + target)
+      cmd("mkdir -p " + target, cluster)
     if os.path.ismount(target):
-      cmd("umount " + target)
-    cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,entry_timeout=0,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1")
+      cmd("umount " + target, cluster)
+    # cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,entry_timeout=0,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1")
+    cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1", cluster)
     return target
   return singularity_folder
 
@@ -186,52 +187,47 @@ def main():
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   elif sys.argv[1] == "sg":
-    local_sing = mount_singularity_on_local()
+    local_sing = mount_singularity()
     cmd(f"sh {local_sing}/run.sh")
 
-  elif sys.argv[1] == "here" or sys.argv[1] == "sg":
-    cluster = ""
-    if len(sys.argv) == 3:
-      if sys.argv[2][0] == "@":
-        cluster = sys.argv[2][1:]
+  # elif sys.argv[1] == "here" or sys.argv[1] == "sg":
+    # cluster = ""
+    # if len(sys.argv) == 3:
+      # if sys.argv[2][0] == "@":
+        # cluster = sys.argv[2][1:]
 
-    if (cluster != "" and singularity_host != cluster) or (cluster == "" and not is_localhost(singularity_host)):
-      user_host = getpass.getuser() + "@" + get_ip()
-      target_sing = f"~/automnt_{singularity_host}_singularity"
-      # mkdir locally if not exist
-      cmd(f"mkdir -p {target_sing}", cluster)
-      # umount if already mounted
-      cmd(f"umount {target_sing}", cluster)
+    # if (cluster != "" and singularity_host != cluster) or (cluster == "" and not is_localhost(singularity_host)):
+      # user_host = getpass.getuser() + "@" + get_ip()
+      # target_sing = f"~/automnt_{singularity_host}_singularity"
+      # cmd(f"mkdir -p {target_sing}", cluster)
+      # cmd(f"umount {target_sing}", cluster)
 
-      sshfs_cmd = "nohup sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target_sing
-      cmd(sshfs_cmd, cluster)
+      # sshfs_cmd = "nohup sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target_sing
+      # cmd(sshfs_cmd, cluster)
 
-      sf = target_sing
-    else:
-      sf = singularity_folder
+      # sf = target_sing
+    # else:
+      # sf = singularity_folder
+#
+    # if cluster != "": # sshfs map current folder to cluster
+      # if is_localhost(cluster):
+        # target = ""
+      # else:
+        # target = "~/automnt_" + platform.node() + "/"
+        # target = os.path.expanduser(target)
 
-    if cluster != "": # sshfs map current folder to cluster
-      if is_localhost(cluster):
-        target = ""
-      else:
-        target = "~/automnt_" + platform.node() + "/"
-        # expand target
-        target = os.path.expanduser(target)
-
-        cmd(f"mkdir -p {target}", cluster)
-        cmd(f"umount {target}", cluster)
-        cmd(f"nohup sshfs -o StrictHostKeyChecking=no -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa {user_host}:/ {target}", cluster)
-
-    extracmd = ""
-    if sys.argv[1] == "here":
-      if cluster != "":
-        extracmd = f"-is eval cd /host/{target}{os.getcwd()}"
-      else:
-        extracmd = f"-is eval cd /host/{os.getcwd()}"
-  
-    cmd(f"singularity exec --containall --nv --bind {sf}/home:/home/$USER --bind /:/host {sf}/sand /usr/bin/zsh {extracmd}", cluster)
-
-
+        # cmd(f"mkdir -p {target}", cluster)
+        # cmd(f"umount {target}", cluster)
+        # cmd(f"nohup sshfs -o StrictHostKeyChecking=no -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa {user_host}:/ {target}", cluster)
+#
+    # extracmd = ""
+    # if sys.argv[1] == "here":
+      # if cluster != "":
+        # extracmd = f"-is eval cd /host/{target}{os.getcwd()}"
+      # else:
+        # extracmd = f"-is eval cd /host/{os.getcwd()}"
+  # 
+    # cmd(f"singularity exec --containall --nv --bind {sf}/home:/home/$USER --bind /:/host {sf}/sand /usr/bin/zsh {extracmd}", cluster)
   else:
     if "@" not in sys.argv[1]:
       print("Wrong format. Needed: SESSION_NAME@ClUSTER[gID][#NUMGPUs]")
@@ -297,24 +293,21 @@ def main():
     print("Session name: " + session_name)
 
 
+    # Mounting working folder
     print("SSHFS Mapping ...")
     user_host = getpass.getuser() + "@" + get_ip()
-    target = "~/mnt_tl_" + platform.node() + "/"
-    sshfs_cmd = "ssh " + cluster + " -t \"mkdir -p " + target + "; nohup sshfs -o StrictHostKeyChecking=no -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa " + user_host + ":/ " + target + "\""
-    cmd(sshfs_cmd)
+    target = "~/automnt_tl_" + platform.node() + "/"
+    cmd("mkdir -p " + target, cluster)
+    cmd("umount " + target, cluster)
+    cmd("nohup sshfs -o StrictHostKeyChecking=no,follow_symlinks,cache=no,idmap=user -o IdentityFile=~/.ssh/id_rsa " + user_host + ":/ " + target + " > /dev/null 2>&1", cluster)
+
+    # Mounting Singularity
+    local_sing = mount_singularity(cluster)
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
-    SING = "/home/supasorn/mnt_v1_singularity"
-    rcmd = "source ~/.zshrc && cd " + os.getcwd() +  " && " + tf_cmd 
-    ccmd = f"""singularity exec --containall --nv \
-        --bind {SING}/home:/home/supasorn \
-        --bind /tmp:/tmp \
-        --bind {target}:/host \
-        "{SING}/sand" \
-        /usr/bin/zsh -c '{rcmd}'"""
-
-    # cmd(ccmd)
-    terminal_cmd = "cd " + target + os.getcwd().replace("/host", "") + " && " + ccmd
+    rcmd = "cd /host/" + os.getcwd() +  " && " + tf_cmd 
+    # rcmd = "echo $'" + rcmd + "' >> ~/.zsh_history ; " + rcmd
+    terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/supasorn --home /home/supasorn --bind /tmp:/tmp --bind {target}:/host "{local_sing}/sand" /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
 
     print(windows)
     if len(windows) == 0:
@@ -327,7 +320,7 @@ def main():
 
 
     # https://unix.stackexchange.com/questions/266866/how-to-prevent-ctrlc-to-break-ssh-connection/841125
-    terminal_cmd = ' ssh ' + cluster + ' -t \\\"trap : INT; ' + terminal_cmd + ' \\\"' # last exit is for when closing ssh connection, also close ROG
+    terminal_cmd = ' ssh ' + cluster + ' -t \' trap : INT; ' + terminal_cmd + ' \'; exit' # last exit is for when closing ssh connection, also close ROG
 
     tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\;'
 
