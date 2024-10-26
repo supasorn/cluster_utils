@@ -305,7 +305,7 @@ def main():
     local_sing = mount_singularity(cluster)
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
-    rcmd = "cd /host/" + os.getcwd() +  " && " + tf_cmd 
+    rcmd = "cd /host/" + os.getcwd() # +  " && " + tf_cmd 
     # rcmd = "echo $'" + rcmd + "' >> ~/.zsh_history ; " + rcmd
     terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/supasorn --home /home/supasorn --bind /tmp:/tmp --bind {target}:/host "{local_sing}/sand" /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
 
@@ -320,9 +320,9 @@ def main():
 
 
     # https://unix.stackexchange.com/questions/266866/how-to-prevent-ctrlc-to-break-ssh-connection/841125
-    terminal_cmd = ' ssh ' + cluster + ' -t \' trap : INT; ' + terminal_cmd + ' \'; exit' # last exit is for when closing ssh connection, also close ROG
+    terminal_cmd = ' ssh ' + cluster + ' -t \'trap : INT; ' + terminal_cmd + ' \'; exit' # last exit is for when closing ssh connection, also close ROG
 
-    tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\;'
+    tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\; send-keys "' + tf_cmd + '" C-m\;'
 
     cmd(tmux_cmd)
     # print(tmux_cmd)
