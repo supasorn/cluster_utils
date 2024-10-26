@@ -170,7 +170,7 @@ def mount_singularity_on_local():
       os.makedirs(target)
     if os.path.ismount(target):
       os.system("umount " + target)
-    cmd(f"nohup sshfs -o StrictHostKeyChecking=no,follow_symlinks,cache=no,allow_other -o IdentityFile=~/.ssh/id_rsa {singularity_location}:/ {target}")
+    cmd(f"nohup sshfs -o StrictHostKeyChecking=no,follow_symlinks,cache=no,allow_other -o IdentityFile=~/.ssh/id_rsa {singularity_location} {target}")
 
 #
 # exit()
