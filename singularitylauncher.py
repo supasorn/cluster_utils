@@ -238,7 +238,7 @@ def main():
   elif sys.argv[1] == "sg":
     local_sing = mount_singularity()
     rcmd = "cd /host/" + os.getcwd() 
-    terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/supasorn --home /home/supasorn --bind /tmp:/tmp --bind /:/host {local_sing}/sand /usr/bin/zsh -is eval \"{rcmd}\""""
+    terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --bind /tmp:/tmp --bind /:/host {local_sing}/sand /usr/bin/zsh -is eval \"{rcmd}\""""
     cmd(terminal_cmd)
 
   else:
@@ -273,7 +273,7 @@ def main():
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
     rcmd = "cd /host/" + os.getcwd() 
 
-    terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/supasorn --home /home/supasorn --bind /tmp:/tmp --bind {target}:/host {local_sing}/sand /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
+    terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --bind /tmp:/tmp --bind {target}:/host {local_sing}/sand /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
 
     print(windows)
     if len(windows) == 0:
