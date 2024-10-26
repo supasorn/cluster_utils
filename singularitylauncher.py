@@ -70,7 +70,9 @@ def cmd(a, cluster=""):
   if cluster != "":
     a = "ssh " + cluster + " -t \"" + a + "\""
 
-  print("  " + a)
+  red = "\033[31m"
+  reset = "\033[0m"
+  print(f"{red}Exec:{reset} {a}")
   os.system(a)
 
 def get_ip():
@@ -167,10 +169,11 @@ def mount_singularity_on_local():
   if not is_localhost(singularity_host):
     target = "~/automnt_" + singularity_host + "_singularity/"
     if not os.path.exists(target):
-      os.makedirs(target)
+      cmd("mkdir -p " + target)
     if os.path.ismount(target):
-      os.system("umount " + target)
-    cmd(f"nohup sshfs -o StrictHostKeyChecking=no,follow_symlinks,cache=no,allow_other -o IdentityFile=~/.ssh/id_rsa {singularity_location} {target}")
+      cmd("umount " + target)
+    cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,uid=0,gid=0,cache=no,noauto_cache,entry_timeout=0,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1")
+  return target
 
 #
 # exit()
@@ -182,8 +185,8 @@ def main():
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   elif sys.argv[1] == "sg":
-    mount_singularity_on_local()
-
+    local_sing = mount_singularity_on_local()
+    cmd(f"sh {local_sing}/run.sh")
 
   elif sys.argv[1] == "here" or sys.argv[1] == "sg":
     cluster = ""
