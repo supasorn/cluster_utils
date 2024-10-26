@@ -177,6 +177,55 @@ def mount_singularity(cluster=""):
     return target
   return singularity_folder
 
+def parseNodeCode(argv):
+  if "@" not in argv[1]:
+    print("Wrong format. Needed: SESSION_NAME@ClUSTER[gID][#NUMGPUs]")
+    exit()
+
+  sp = argv[1].split("@")
+  code = sp[1]
+
+  if "#" in code: # user specify multiple gpus
+    sp2 = code.split("#")
+    code = sp2[0]
+    num_gpu = int(sp2[1])
+    if num_gpu < 0 or num_gpu > 4:
+      raise ValueError("num_gpu invalid")
+  else:
+    num_gpu=1
+
+  if code == "": #automatically select cluster and gpu
+    print("Finding a free cluster and a free gpu...")
+    cluster, gpu_id = getAvailableGPUs(num_gpu)
+    gpu_id = ",".join([str(x) for x in gpu_id])
+  else:
+    cluster = ""
+    if "g" in code:
+      cluster, gpu = code.split("g")
+    else:
+      cluster = code
+      gpu = "a"
+
+    if cluster not in clusters:
+      print("Invalid cluster")
+      exit()
+    # if gpu not in ["0", "1", "2", "3", "a"]:
+      # print("Invalid GPU code")
+      # exit()
+
+    if num_gpu == 0:
+      gpu_id = ""
+    elif num_gpu > 1:
+      cluster, gpu_id = getAvailableGPUs(num_gpu, [cluster])
+      gpu_id = ",".join([str(x) for x in gpu_id[:num_gpu]])
+    else:
+      # auto
+      if gpu == "a":
+        print("Finding a free gpu...")
+        gpu_id = str(getFirstAvailable(cluster))
+      else:
+        gpu_id = gpu
+  return cluster, gpu_id
 #
 # exit()
 def main():
@@ -190,92 +239,8 @@ def main():
     local_sing = mount_singularity()
     cmd(f"sh {local_sing}/run.sh")
 
-  # elif sys.argv[1] == "here" or sys.argv[1] == "sg":
-    # cluster = ""
-    # if len(sys.argv) == 3:
-      # if sys.argv[2][0] == "@":
-        # cluster = sys.argv[2][1:]
-
-    # if (cluster != "" and singularity_host != cluster) or (cluster == "" and not is_localhost(singularity_host)):
-      # user_host = getpass.getuser() + "@" + get_ip()
-      # target_sing = f"~/automnt_{singularity_host}_singularity"
-      # cmd(f"mkdir -p {target_sing}", cluster)
-      # cmd(f"umount {target_sing}", cluster)
-
-      # sshfs_cmd = "nohup sshfs -o StrictHostKeyChecking=no -o allow_other -o idmap=user -o IdentityFile=~/.ssh/id_rsa " + singularity_location + " " + target_sing
-      # cmd(sshfs_cmd, cluster)
-
-      # sf = target_sing
-    # else:
-      # sf = singularity_folder
-#
-    # if cluster != "": # sshfs map current folder to cluster
-      # if is_localhost(cluster):
-        # target = ""
-      # else:
-        # target = "~/automnt_" + platform.node() + "/"
-        # target = os.path.expanduser(target)
-
-        # cmd(f"mkdir -p {target}", cluster)
-        # cmd(f"umount {target}", cluster)
-        # cmd(f"nohup sshfs -o StrictHostKeyChecking=no -o follow_symlinks -o cache=no -o IdentityFile=~/.ssh/id_rsa {user_host}:/ {target}", cluster)
-#
-    # extracmd = ""
-    # if sys.argv[1] == "here":
-      # if cluster != "":
-        # extracmd = f"-is eval cd /host/{target}{os.getcwd()}"
-      # else:
-        # extracmd = f"-is eval cd /host/{os.getcwd()}"
-  # 
-    # cmd(f"singularity exec --containall --nv --bind {sf}/home:/home/$USER --bind /:/host {sf}/sand /usr/bin/zsh {extracmd}", cluster)
   else:
-    if "@" not in sys.argv[1]:
-      print("Wrong format. Needed: SESSION_NAME@ClUSTER[gID][#NUMGPUs]")
-      exit()
-
-    sp = sys.argv[1].split("@")
-    code = sp[1]
-
-    if "#" in code: # user specify multiple gpus
-      sp2 = code.split("#")
-      code = sp2[0]
-      num_gpu = int(sp2[1])
-      if num_gpu < 0 or num_gpu > 4:
-        raise ValueError("num_gpu invalid")
-    else:
-      num_gpu=1
-
-    if code == "": #automatically select cluster and gpu
-      print("Finding a free cluster and a free gpu...")
-      cluster, gpu_id = getAvailableGPUs(num_gpu)
-      gpu_id = ",".join([str(x) for x in gpu_id])
-    else:
-      cluster = ""
-      if "g" in code:
-        cluster, gpu = code.split("g")
-      else:
-        cluster = code
-        gpu = "a"
-
-      if cluster not in clusters:
-        print("Invalid cluster")
-        exit()
-      # if gpu not in ["0", "1", "2", "3", "a"]:
-        # print("Invalid GPU code")
-        # exit()
-
-      if num_gpu == 0:
-        gpu_id = ""
-      elif num_gpu > 1:
-        cluster, gpu_id = getAvailableGPUs(num_gpu, [cluster])
-        gpu_id = ",".join([str(x) for x in gpu_id[:num_gpu]])
-      else:
-        # auto
-        if gpu == "a":
-          print("Finding a free gpu...")
-          gpu_id = str(getFirstAvailable(cluster))
-        else:
-          gpu_id = gpu
+    cluster, gpu_id = parseNodeCode(sys.argv)
 
     print("Using cluster: " + cluster)
     print("Using gpu: " + gpu_id)
@@ -292,7 +257,6 @@ def main():
     session_name = sp[0]
     print("Session name: " + session_name)
 
-
     # Mounting working folder
     print("SSHFS Mapping ...")
     user_host = getpass.getuser() + "@" + get_ip()
@@ -305,8 +269,8 @@ def main():
     local_sing = mount_singularity(cluster)
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
-    rcmd = "cd /host/" + os.getcwd() # +  " && " + tf_cmd 
-    # rcmd = "echo $'" + rcmd + "' >> ~/.zsh_history ; " + rcmd
+    rcmd = "cd /host/" + os.getcwd() 
+
     terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/supasorn --home /home/supasorn --bind /tmp:/tmp --bind {target}:/host "{local_sing}/sand" /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
 
     print(windows)
@@ -321,11 +285,8 @@ def main():
 
     # https://unix.stackexchange.com/questions/266866/how-to-prevent-ctrlc-to-break-ssh-connection/841125
     terminal_cmd = ' ssh ' + cluster + ' -t \'trap : INT; ' + terminal_cmd + ' \'; exit' # last exit is for when closing ssh connection, also close ROG
-
     tmux_cmd = tmux_creation + ' send-keys "' + terminal_cmd + '" C-m\; send-keys "' + tf_cmd + '" C-m\;'
-
     cmd(tmux_cmd)
-    # print(tmux_cmd)
 
 if __name__== "__main__":
   main()
