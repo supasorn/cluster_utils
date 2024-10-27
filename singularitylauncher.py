@@ -47,7 +47,11 @@ import psutil
 
 session_special = "UL"
 console = Console()
-singularity_location = "v1:/home2/supasorn/singularity"
+if "SG" in os.environ:
+  singularity_location = os.environ["SG"]
+else:
+  singularity_location = "v1:/home2/supasorn/singularity"
+
 singularity_host, singularity_folder = singularity_location.split(":")
 
 if "clusters" not in os.environ:
