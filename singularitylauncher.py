@@ -206,6 +206,13 @@ def mount_singularity(cluster=""):
           return singularity_folders[i]
 
   for i in range(len(singularity_hosts)):
+    if singularity_hosts[i] != "":
+      target = "~/mnt/" + singularity_hosts[i] + "_singularity"
+      target = os.path.expanduser(target)
+      if os.path.exists(target) and os.path.ismount(target) and os.listdir(target):
+        return target
+
+  for i in range(len(singularity_hosts)):
     if singularity_hosts[i] != "" and os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
       singularity_host = singularity_hosts[i]
       singularity_folder = singularity_folders[i]
@@ -218,10 +225,6 @@ def mount_singularity(cluster=""):
 
   target = "~/mnt/" + singularity_host + "_singularity"
   target = os.path.expanduser(target)
-
-  # check if target is mounted and not empty
-  if os.path.exists(target) and os.path.ismount(target) and os.listdir(target):
-    return target
 
   if not os.path.exists(target):
     cmd("mkdir -p " + target, cluster)
