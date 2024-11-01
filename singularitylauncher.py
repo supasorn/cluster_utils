@@ -172,7 +172,7 @@ def showGPUs():
 def mount_singularity(cluster=""):
   print("*****", cluster, singularity_host, is_localhost(singularity_host))
   if (cluster == "" and not is_localhost(singularity_host)) or (cluster != "" and cluster != singularity_host):
-    target = "~/automnt_" + singularity_host + "_singularity"
+    target = "~/mnt/" + singularity_host + "_singularity"
     if not os.path.exists(target):
       cmd("mkdir -p " + target, cluster)
     if os.path.ismount(target):
@@ -268,7 +268,7 @@ def main():
     # Mounting working folder
     print("SSHFS Mapping ...")
     user_host = getpass.getuser() + "@" + get_ip()
-    target = "~/automnt_tl_" + platform.node() + "/"
+    target = "~/mnt/" + platform.node() + "_tl/"
     cmd("mkdir -p " + target, cluster)
     cmd("umount " + target, cluster)
     cmd("nohup sshfs -o StrictHostKeyChecking=no,follow_symlinks,cache=no,idmap=user -o IdentityFile=~/.ssh/id_rsa " + user_host + ":/ " + target + " > /dev/null 2>&1", cluster)
