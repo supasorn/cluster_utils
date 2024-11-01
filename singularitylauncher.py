@@ -210,6 +210,7 @@ def mount_singularity(cluster=""):
 
     for i in range(len(singularity_hosts)):
       if singularity_hosts[i] != "" and os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
+        print("here!", singularity_folders[i])
         singularity_host = singularity_hosts[i]
         singularity_folder = singularity_folders[i]
         singularity_location = singularity_locations[i]
