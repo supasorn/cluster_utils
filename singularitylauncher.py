@@ -48,11 +48,19 @@ import psutil
 session_special = "UL"
 console = Console()
 if "SG" in os.environ:
-  singularity_location = os.environ["SG"]
+  singularity_locations = os.environ["SG"]
 else:
-  singularity_location = "v1:/home2/supasorn/singularity"
+  singularity_locations = "/home2/supasorn/singularity,10.204.100.129:/mnt/data/supasorn/singularity,v23:/home2/supasorn/singularity,v21:/home2/supasorn/singularity,v1:/home2/supasorn/singularity"
 
-singularity_host, singularity_folder = singularity_location.split(":")
+singularity_locations = singularity_locations.split(",")
+singularity_hosts = []
+singularity_folders = []
+for location in singularity_locations:
+  ab = location.split(":")
+  singularity_folders.append(ab[-1])
+  if len(ab) > 1:
+    singularity_hosts.append(ab[0])
+
 
 if "clusters" not in os.environ:
   clusters = ["v%d" % i for i in range(1, 24)]
@@ -69,6 +77,13 @@ def is_localhost(alias):
   except socket.gaierror:
     # If the alias cannot be resolved, return False
     return False
+
+def colorprint(msg, tp):
+  if tp == "Info": # use orange
+    print(f"\033[33mInfo: \033[0m{msg}")
+  else:
+    print(msg)
+
 
 def cmd(a, cluster=""):
   if cluster != "":
@@ -170,18 +185,50 @@ def showGPUs():
 # def sshfs_mount(src, target):
 
 def mount_singularity(cluster=""):
-  print("*****", cluster, singularity_host, is_localhost(singularity_host))
-  if (cluster == "" and not is_localhost(singularity_host)) or (cluster != "" and cluster != singularity_host):
-    target = "~/mnt/" + singularity_host + "_singularity"
-    if not os.path.exists(target):
-      cmd("mkdir -p " + target, cluster)
-    if os.path.ismount(target):
-      cmd("umount " + target, cluster)
-    # cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1", cluster)
-    cmd(f"sudo mount -o soft {singularity_location} {target}", cluster)
+  if cluster == "": # running locally
+    for i in range(len(singularity_hosts)):
+      if singularity_hosts[i] == "" or is_localhost(singularity_hosts[i]):
+        if os.listdir(singularity_folders[i]):
+          return singularity_folders[i]
 
-    return target
-  return singularity_folder
+    for i in range(len(singularity_hosts)):
+      # check if remote location is reachable by ssh and the remote server specified by singularity_location[i] exists
+      if os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
+        singularity_host = singularity_hosts[i]
+        singularity_folder = singularity_folders[i]
+        singularity_location = singularity_locations[i]
+        break
+  else: # running remotely
+    for i in range(len(singularity_hosts)): 
+      if singularity_hosts[i] == cluster:
+        return singularity_folders[i]
+
+    for i in range(len(singularity_hosts)):
+      if singularity_hosts[i] == "":
+        if os.system(f"ssh -o StrictHostKeyChecking=no {cluster} 'test -d {singularity_folders[i]}'") == 0:
+          return singularity_folders[i]
+
+    for i in range(len(singularity_hosts)):
+      if os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
+        singularity_host = singularity_hosts[i]
+        singularity_folder = singularity_folders[i]
+        singularity_location = singularity_locations[i]
+        break
+
+  if singularity_host == "":
+    print("No singularity location available")
+    exit()
+
+  target = "~/mnt/" + singularity_host + "_singularity"
+  if not os.path.exists(target):
+    cmd("mkdir -p " + target, cluster)
+  if os.path.ismount(target):
+    cmd("umount " + target, cluster)
+  # cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1", cluster)
+  cmd(f"sudo mount -o soft {singularity_location} {target}", cluster)
+
+  return target
+
 
 def parseNodeCode(argv):
   if "@" not in argv[1]:
@@ -243,6 +290,7 @@ def main():
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   elif sys.argv[1] == "sg":
     local_sing = mount_singularity()
+    colorprint(f"Using singularity {local_sing}", "Info")
     rcmd = "cd /host/" + os.getcwd() 
     terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --bind /tmp:/tmp --bind /:/host {local_sing}/sand /usr/bin/zsh -is eval \"{rcmd}\""""
     cmd(terminal_cmd)
@@ -275,6 +323,7 @@ def main():
 
     # Mounting Singularity
     local_sing = mount_singularity(cluster)
+    colorprint(f"Using singularity {local_sing}", "Info")
 
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
     rcmd = "cd /remote/" + os.getcwd() 
