@@ -222,6 +222,8 @@ def mount_singularity(cluster=""):
     exit()
 
   target = "~/mnt/" + singularity_host + "_singularity"
+  target = os.path.expanduser(target)
+
   # check if target is mounted and not empty
   if os.path.exists(target) and os.path.ismount(target) and os.listdir(target):
     return target
