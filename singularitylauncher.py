@@ -189,9 +189,7 @@ def showGPUs():
 def mount_singularity(cluster=""):
   if cluster == "": # running locally
     for i in range(len(singularity_hosts)):
-      print(singularity_hosts[i])
       if singularity_hosts[i] == "" or is_localhost(singularity_hosts[i]):
-        print("INS", singularity_folders[i])
         if os.path.exists(singularity_folders[i]):
           return singularity_folders[i]
 
