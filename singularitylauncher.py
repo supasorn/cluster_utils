@@ -189,17 +189,12 @@ def showGPUs():
 def mount_singularity(cluster=""):
   if cluster == "": # running locally
     for i in range(len(singularity_hosts)):
+      print(singularity_hosts[i])
       if singularity_hosts[i] == "" or is_localhost(singularity_hosts[i]):
+        print("INS")
         if os.path.exists(singularity_folders[i]):
           return singularity_folders[i]
 
-    for i in range(len(singularity_hosts)):
-      # check if remote location is reachable by ssh and the remote server specified by singularity_location[i] exists
-      if singularity_hosts[i] != "" and os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
-        singularity_host = singularity_hosts[i]
-        singularity_folder = singularity_folders[i]
-        singularity_location = singularity_locations[i]
-        break
   else: # running remotely
     for i in range(len(singularity_hosts)): 
       if singularity_hosts[i] == cluster:
@@ -210,12 +205,12 @@ def mount_singularity(cluster=""):
         if os.system(f"ssh -o StrictHostKeyChecking=no {cluster} 'test -d {singularity_folders[i]}'") == 0:
           return singularity_folders[i]
 
-    for i in range(len(singularity_hosts)):
-      if singularity_hosts[i] != "" and os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
-        singularity_host = singularity_hosts[i]
-        singularity_folder = singularity_folders[i]
-        singularity_location = singularity_locations[i]
-        break
+  for i in range(len(singularity_hosts)):
+    if singularity_hosts[i] != "" and os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
+      singularity_host = singularity_hosts[i]
+      singularity_folder = singularity_folders[i]
+      singularity_location = singularity_locations[i]
+      break
 
   if singularity_host == "":
     print("No singularity location available")
