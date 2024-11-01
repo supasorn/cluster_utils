@@ -193,7 +193,7 @@ def mount_singularity(cluster=""):
 
     for i in range(len(singularity_hosts)):
       # check if remote location is reachable by ssh and the remote server specified by singularity_location[i] exists
-      if os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
+      if singularity_hosts[i] != "" and os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
         singularity_host = singularity_hosts[i]
         singularity_folder = singularity_folders[i]
         singularity_location = singularity_locations[i]
@@ -209,7 +209,7 @@ def mount_singularity(cluster=""):
           return singularity_folders[i]
 
     for i in range(len(singularity_hosts)):
-      if os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
+      if singularity_hosts[i] != "" and os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
         singularity_host = singularity_hosts[i]
         singularity_folder = singularity_folders[i]
         singularity_location = singularity_locations[i]
