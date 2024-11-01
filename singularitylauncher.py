@@ -47,7 +47,11 @@ import psutil
 
 session_special = "UL"
 console = Console()
-singularity_location = "v1:/home2/supasorn/singularity"
+if "SG" in os.environ:
+  singularity_location = os.environ["SG"]
+else:
+  singularity_location = "v1:/home2/supasorn/singularity"
+
 singularity_host, singularity_folder = singularity_location.split(":")
 
 if "clusters" not in os.environ:
@@ -172,8 +176,9 @@ def mount_singularity(cluster=""):
       cmd("mkdir -p " + target, cluster)
     if os.path.ismount(target):
       cmd("umount " + target, cluster)
-    # cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,entry_timeout=0,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1")
-    cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1", cluster)
+    # cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1", cluster)
+    cmd(f"sudo mount -o soft {singularity_location} {target}", cluster)
+
     return target
   return singularity_folder
 
@@ -273,7 +278,7 @@ def main():
     tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
     rcmd = "cd /remote/" + os.getcwd() 
 
-    terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --bind /tmp:/tmp --bind {target}:/remote {local_sing}/sand /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
+    terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --bind /tmp:/tmp --bind {target}:/remote --bind /:/host {local_sing}/sand /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
 
     print(windows)
     if len(windows) == 0:
