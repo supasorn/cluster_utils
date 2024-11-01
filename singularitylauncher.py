@@ -191,7 +191,7 @@ def mount_singularity(cluster=""):
     for i in range(len(singularity_hosts)):
       print(singularity_hosts[i])
       if singularity_hosts[i] == "" or is_localhost(singularity_hosts[i]):
-        print("INS")
+        print("INS", singularity_folders[i])
         if os.path.exists(singularity_folders[i]):
           return singularity_folders[i]
 
