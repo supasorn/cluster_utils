@@ -60,6 +60,8 @@ for location in singularity_locations:
   singularity_folders.append(ab[-1])
   if len(ab) > 1:
     singularity_hosts.append(ab[0])
+  else:
+    singularity_hosts.append("")
 
 
 if "clusters" not in os.environ:
