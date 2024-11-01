@@ -177,7 +177,7 @@ def mount_singularity(cluster=""):
     if os.path.ismount(target):
       cmd("umount " + target, cluster)
     # cmd(f"nohup sshfs -o IdentityFile=~/.ssh/id_rsa -o reconnect,allow_other,idmap=user,cache=no,noauto_cache,StrictHostKeyChecking=no,max_conns=16 {singularity_location} {target} > /dev/null 2>&1", cluster)
-    cmd(f"sudo mount {singularity_location} {target}", cluster)
+    cmd(f"sudo mount -o soft {singularity_location} {target}", cluster)
 
     return target
   return singularity_folder
