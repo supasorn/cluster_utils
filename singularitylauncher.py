@@ -299,6 +299,10 @@ def main():
     showGPUs()
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
+  elif sys.argv[1] == "mount_pure_nas":
+    cmd("mkdir -p ~/mnt/pure_nas")
+    cmd("umount ~/mnt/pure_nas")
+    cmd("sudo mount -o soft 10.204.100.129:/mnt/data/supasorn ~/mnt/pure_nas")
   elif sys.argv[1] == "sg":
     local_sing = mount_singularity()
     colorprint(f"Using singularity {local_sing}", "Info")
