@@ -303,7 +303,7 @@ def main():
     cmd("mkdir -p ~/mnt/pure_nas")
     cmd("umount ~/mnt/pure_nas")
     cmd("sudo mount -o soft 10.204.100.129:/mnt/data/supasorn ~/mnt/pure_nas")
-  elif sys.argv[1] = "update":
+  elif sys.argv[1] == "update":
     # set dir to the directory of this script
     os.system("cd " + os.path.dirname(os.path.realpath(__file__)) + " && git pull")
   elif sys.argv[1] == "sg":
