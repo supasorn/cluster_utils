@@ -192,6 +192,12 @@ def mount_singularity(cluster=""):
       if singularity_hosts[i] == "" or is_localhost(singularity_hosts[i]):
         if os.path.exists(singularity_folders[i]):
           return singularity_folders[i]
+    for i in range(len(singularity_hosts)):
+      if singularity_hosts[i] != "":
+        target = "~/mnt/" + singularity_hosts[i] + "_singularity"
+        target = os.path.expanduser(target)
+        if os.path.exists(target) and os.path.ismount(target) and os.listdir(target):
+          return target
 
   else: # running remotely
     for i in range(len(singularity_hosts)): 
@@ -203,12 +209,13 @@ def mount_singularity(cluster=""):
         if os.system(f"ssh -o StrictHostKeyChecking=no {cluster} 'test -d {singularity_folders[i]}'") == 0:
           return singularity_folders[i]
 
-  for i in range(len(singularity_hosts)):
-    if singularity_hosts[i] != "":
-      target = "~/mnt/" + singularity_hosts[i] + "_singularity"
-      target = os.path.expanduser(target)
-      if os.path.exists(target) and os.path.ismount(target) and os.listdir(target):
-        return target
+    # for i in range(len(singularity_hosts)):
+    #   if singularity_hosts[i] != "":
+    #     target = "~/mnt/" + singularity_hosts[i] + "_singularity"
+    #     target = os.path.expanduser(target)
+    #     if os.path.exists(target) and os.path.ismount(target) and os.listdir(target):
+    #       return target
+
 
   for i in range(len(singularity_hosts)):
     if singularity_hosts[i] != "" and os.system(f"ssh -o StrictHostKeyChecking=no {singularity_hosts[i]} 'test -d {singularity_folders[i]}'") == 0:
