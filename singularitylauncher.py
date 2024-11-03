@@ -300,9 +300,9 @@ def main():
   elif sys.argv[1] == "tm":
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   elif sys.argv[1] == "mount_pure_nas":
-    cmd("mkdir -p ~/mnt/pure_nas")
+    cmd("mkdir -p ~/mnt/pure-c2_singularity")
     cmd("umount ~/mnt/pure_nas")
-    cmd("sudo mount -o soft 10.204.100.129:/mnt/data/supasorn ~/mnt/pure_nas")
+    cmd("sudo mount -o soft 10.204.100.129:/mnt/data/supasorn/singularity ~/mnt/pure-c2_singularity")
   elif sys.argv[1] == "update":
     # set dir to the directory of this script
     os.system("cd " + os.path.dirname(os.path.realpath(__file__)) + " && git pull")
