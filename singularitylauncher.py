@@ -256,7 +256,7 @@ def parseNodeCode(argv):
     if num_gpu < 0 or num_gpu > 4:
       raise ValueError("num_gpu invalid")
   else:
-    num_gpu=1
+    num_gpu=0
 
   if code == "": #automatically select cluster and gpu
     print("Finding a free cluster and a free gpu...")
@@ -343,7 +343,10 @@ def main():
     local_sing = mount_singularity(cluster)
     colorprint(f"Using singularity {local_sing}", "Info")
 
-    tf_cmd = "CUDA_VISIBLE_DEVICES=" + gpu_id + " " + " ".join(sys.argv[2:])
+    tf_cmd = ""
+    if gpu_id != "":
+      tf_cmd = f"CUDA_VISIBLE_DEVICES={gpu_id} "
+    tf_cmd += " ".join(sys.argv[2:])
     rcmd = "cd /remote/" + os.getcwd() 
 
     terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --bind /tmp:/tmp --bind {target}:/remote --bind /:/host {local_sing}/sand /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
