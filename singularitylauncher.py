@@ -313,7 +313,7 @@ def main():
     local_sing = mount_singularity()
     colorprint(f"Using singularity {local_sing}", "Info")
     rcmd = "cd /host/" + os.getcwd() 
-    terminal_cmd = sing_command(local_sing) + "\"{rcmd}\""
+    terminal_cmd = sing_command(local_sing) + f"\"{rcmd}\""
     cmd(terminal_cmd)
 
   else:
@@ -351,8 +351,7 @@ def main():
       tf_cmd = f"CUDA_VISIBLE_DEVICES={gpu_id} "
     tf_cmd += " ".join(sys.argv[2:])
     rcmd = "cd /remote/" + os.getcwd() 
-
-    terminal_cmd = sing_command(local_sing, f"--bind {target}:/remote") + "\\\"{rcmd}\\\""
+    terminal_cmd = sing_command(local_sing, f"--bind {target}:/remote") + f"\\\"{rcmd}\\\""
     # terminal_cmd = f"""singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --bind /tmp:/tmp --bind {target}:/remote --bind /:/host {local_sing}/sand /usr/bin/zsh -is eval \\\"{rcmd}\\\""""
 
     print(windows)
