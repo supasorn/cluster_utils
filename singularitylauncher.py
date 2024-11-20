@@ -292,7 +292,15 @@ def parseNodeCode(argv):
   return cluster, gpu_id, sp
 
 def sing_command(local_sing, extra=""):
-  return f"singularity exec --containall --nv --bind {local_sing}/home:/home/$USER --home /home/$USER --env HF_HUB_CACHE=/host/data/huggingface_hub --bind /tmp:/tmp {extra} --bind /:/host {local_sing}/sand /usr/bin/zsh -is eval "
+  return f"singularity exec \\\n \
+      --containall \\\n \
+      --nv \\\n \
+      --bind {local_sing}/home:/home/$USER \\\n \
+      --bind /tmp:/tmp {extra} \\\n \
+      --bind /:/host \\\n \
+      --home /home/$USER \\\n \
+      --env HF_HUB_CACHE=/host/data/huggingface_hub \\\n \
+      {local_sing}/sand /usr/bin/zsh -is eval "
 #
 # exit()
 def main():
