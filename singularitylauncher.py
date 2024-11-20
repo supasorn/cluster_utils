@@ -304,7 +304,7 @@ def main():
     os.system("ssh " + sys.argv[2] + " -t \"tmux a\"")
   elif sys.argv[1] == "mount_pure_nas":
     cmd("mkdir -p ~/mnt/pure-c2_singularity")
-    cmd("umount ~/mnt/pure-c2_singularity")
+    cmd("sudo umount ~/mnt/pure-c2_singularity")
     cmd("sudo mount -o soft 10.204.100.129:/mnt/data/supasorn/singularity ~/mnt/pure-c2_singularity")
   elif sys.argv[1] == "update":
     # set dir to the directory of this script
