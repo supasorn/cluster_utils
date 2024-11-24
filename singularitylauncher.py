@@ -291,7 +291,14 @@ def parseNodeCode(argv):
         gpu_id = gpu
   return cluster, gpu_id, sp
 
-def sing_command(local_sing, extra=""):
+def sing_command(local_sing, extra="", fakeroot=False):
+  if fakeroot:
+    return f"singularity exec \\\n \
+      --containall \\\n \
+      --bind /tmp:/tmp {extra} \\\n \
+      --bind {local_sing}/home:/home/$USER \\\n \
+      --fakeroot \\\n \
+      {local_sing}/sand /usr/bin/zsh"
   return f"singularity exec \\\n \
       --containall \\\n \
       --nv \\\n \
@@ -323,7 +330,11 @@ def main():
     rcmd = "cd /host/" + os.getcwd() 
     terminal_cmd = sing_command(local_sing) + f"\"{rcmd}\""
     cmd(terminal_cmd)
-
+  elif sys.argv[1] == "sgr":
+    local_sing = mount_singularity()
+    colorprint(f"Using singularity {local_sing}", "Info")
+    terminal_cmd = sing_command(local_sing, fakeroot=True) 
+    cmd(terminal_cmd)
   else:
     cluster, gpu_id, sp = parseNodeCode(sys.argv)
 
