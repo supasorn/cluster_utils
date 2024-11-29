@@ -51,7 +51,8 @@ if "SG" in os.environ:
   singularity_locations = os.environ["SG"]
 else:
   # singularity_locations = "/home2/supasorn/singularity,/home/supasorn/mnt/pure-c2_singularity,10.204.100.129:/mnt/data/supasorn/singularity,v23:/home2/supasorn/singularity,v21:/home2/supasorn/singularity,v1:/home2/supasorn/singularity"
-  singularity_locations = "/home2/supasorn/singularity,/home/supasorn/mnt/pure-c2_singularity"
+  # singularity_locations = "/home2/supasorn/singularity,/home/supasorn/mnt/pure-c2_singularity"
+  singularity_locations = "/ist-nas/users/supasorn/singularity"
 
 singularity_locations = singularity_locations.split(",")
 singularity_hosts = []
