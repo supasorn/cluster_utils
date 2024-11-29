@@ -296,9 +296,8 @@ def sing_command(local_sing, extra="", fakeroot=False):
   if fakeroot:
     return f"singularity exec \\\n \
       --containall \\\n \
+      --writable \\\n \
       --bind /tmp:/tmp {extra} \\\n \
-      --bind {local_sing}/home:/home/$USER \\\n \
-      --fakeroot \\\n \
       {local_sing}/sand /usr/bin/zsh"
   return f"singularity exec \\\n \
       --containall \\\n \
@@ -334,7 +333,7 @@ def main():
   elif sys.argv[1] == "sgr":
     local_sing = mount_singularity()
     colorprint(f"Using singularity {local_sing}", "Info")
-    terminal_cmd = sing_command(local_sing, fakeroot=True) 
+    terminal_cmd = "sudo " + sing_command(local_sing, fakeroot=True) 
     cmd(terminal_cmd)
   else:
     cluster, gpu_id, sp = parseNodeCode(sys.argv)
