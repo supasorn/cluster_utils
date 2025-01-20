@@ -307,8 +307,9 @@ def sing_command(local_sing, extra="", fakeroot=False):
       --bind /tmp:/tmp {extra} \\\n \
       --bind /:/host \\\n \
       --home /home/$USER \\\n \
-      --env HF_HUB_CACHE=/host/data/huggingface_hub \\\n \
+      --env HF_HUB_CACHE=/host/ist-nas/ist-share/vision/huggingface_hub \\\n \
       {local_sing}/sand /usr/bin/zsh -is eval "
+    # --env HF_HUB_CACHE=/host/data/huggingface_hub \\\n \
 #
 # exit()
 def main():
