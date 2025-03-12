@@ -299,6 +299,8 @@ def sing_command(local_sing, extra="", fakeroot=False):
       --containall \\\n \
       --writable \\\n \
       --bind /tmp:/tmp {extra} \\\n \
+      --home /home/$USER \\\n \
+      --env HF_HUB_CACHE=/host/ist-nas/ist-share/vision/huggingface_hub \\\n \
       {local_sing}/sand /usr/bin/zsh"
   return f"singularity exec \\\n \
       --containall \\\n \
