@@ -51,7 +51,7 @@ if "SG" in os.environ:
   singularity_locations = os.environ["SG"]
 else:
   # singularity_locations = "/home2/supasorn/singularity,/home/supasorn/mnt/pure-c2_singularity,10.204.100.129:/mnt/data/supasorn/singularity,v23:/home2/supasorn/singularity,v21:/home2/supasorn/singularity,v1:/home2/supasorn/singularity"
-  # singularity_locations = "/home2/supasorn/singularity,/home/supasorn/mnt/pure-c2_singularity"
+  # singularity_locations = "/home2/supasorn/singularity,/ist-nas/users/supasorn/singularity"
   singularity_locations = "/ist-nas/users/supasorn/singularity"
 
 singularity_locations = singularity_locations.split(",")
@@ -308,7 +308,7 @@ def sing_command(local_sing, extra="", fakeroot=False):
       --bind {local_sing}/home:/home/$USER \\\n \
       --bind /tmp:/tmp {extra} \\\n \
       --bind /:/host \\\n \
-      --bind {local_sing}/../projects:/projects \\\n \
+      --bind /ist-nas/users/supasorn/projects:/projects \\\n \
       --home /home/$USER \\\n \
       --env HF_HUB_CACHE=/host/ist-nas/ist-share/vision/huggingface_hub \\\n \
       {local_sing}/sand /usr/bin/zsh -is eval "
